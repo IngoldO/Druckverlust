@@ -59,3 +59,18 @@ Bei fallender Pumpen- und steigender Systemkennlinie gibt es höchstens einen Sc
 Die Darstellung der Systemkurve im Pumpendiagramm verwendet 201 Punkte über den Pumpentabellenbereich. Der Schnittpunkt wird unabhängig von dieser grafischen Abtastung berechnet und zusätzlich markiert. Ergebnisse und Warnungen des Betriebspunkts stehen auf `Betriebspunkte`; das Druckresiduum steht in O11. Der Kennlinienbereich der normalen Systemkurve hat keinen Einfluss auf die Pumpensuche.
 
 Eine lokale Steigungsbedingung mit fallender Pumpenkennlinie ersetzt keine vollständige dynamische Stabilitätsprüfung. Wirkungsgrad, Leistungsbedarf, NPSH, Mindestförderstrom, Parallel-/Serienbetrieb und zulässiger Hersteller-Betriebsbereich sind nicht Bestandteil dieser Version. Ein rechnerischer Schnittpunkt ist daher noch keine Freigabe der Pumpenauslegung.
+
+## Kv-Armatur (Version 1.2)
+
+Referenzdefinition: Kv ist der Volumenstrom in m³/h bei 1 bar Differenzdruck und einer Referenzdichte von 1000 kg/m³. Für n gleiche Armaturen in Serie:
+
+```text
+Δp_Kv [bar] = n (ρ/1000) (Q/Kv)²
+ζ_Kv,äquivalent = [Δp_Kv(Q=1) · 200000/ρ] · (3600 πD²/4)²
+```
+
+Der äquivalente ζ-Wert bezieht sich auf die Hauptrohrgeschwindigkeit und wird den Einzelverlusten zugerechnet. Die Umrechnung führt bei jedem Q exakt zur obigen Kv-Druckgleichung. Der zusätzliche Ausweis in Spalte M ist ein Teilbetrag, kein weiterer Verlust. Bei Q=0 gilt Δp=0. Aktivierte Armaturen benötigen Kv>0 und eine ganzzahlige Anzahl zwischen 1 und 1000; deaktivierte Kv-Armaturen werden ignoriert.
+
+Voraussetzung: turbulente, nicht kavitierende Flüssigkeitsströmung bei fester Armaturenöffnung. Der Benutzer liefert Kv für diesen Öffnungsgrad; Kvs bezeichnet nur den voll geöffneten Zustand. Keine automatische Korrektur für Viskosität, Reynolds-Zahl, Druckrückgewinnungsfaktor FL, Kavitation oder begrenzten Durchfluss. Die einfache Beziehung folgt der üblichen Kv-Definition (Kontext: IEC 60534-2-1); es handelt sich nicht um eine vollständige normgerechte Regelventilauslegung.
+
+`Blende_Standalone` verwendet denselben Blendenansatz wie die Systemberechnung, aber lokale Excel-Formeln und lokale DN-Daten ohne Blattquerverweise. `Systembericht` liest Eingaben neu, speichert numerische Diagrammdaten im eigenen Blatt und druckt die wesentlichen Parameter, Formeln und Annahmen. Der Bericht enthält den Stand des letzten erfolgreichen Aufrufs, keine nachträgliche automatische Aktualisierung. Bei eingeschlossener Pumpe wird der gesamte Pumpentabellenbereich im Diagramm berücksichtigt; die bisherigen monotone Kennlinie- und Konvergenzanforderungen bleiben bestehen.

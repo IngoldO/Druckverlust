@@ -2,7 +2,7 @@
 
 ## In der Cloud ausgeführt
 
-`python -m unittest discover -s tests -v`: **27 Tests bestanden**.
+`python -m unittest discover -s tests -v`: **34 Tests bestanden**.
 
 Diese prüfen die XLSX-Paketintegrität, die drei Blätter, Tabellen und Namensbereiche, Eingabezellzuordnung, drei XY-Diagrammreihen, importierbare ASCII-Module und Referenzdaten. Numerisch prüfen sie Hagen-Poiseuille im laminaren Fall, einen bekannten glatten Colebrook-Wert, additive Einzelwiderstände, Druckvorzeichen, Q=0 und den Übergangsansatz. Eine Python-Transkription der VBA-Fixpunktiteration wird in **45 Kombinationen** (Re=2300 bis 10⁸, ε/D=0 bis 0,05) gegen eine unabhängige Bisektion direkt in λ geprüft.
 
@@ -49,9 +49,9 @@ Erwartete VBA-Meldung: **20 Rechenkern-Testfälle bestanden**. Bei Abweichungen 
 
 Die 12 zusätzlichen Cloud-Tests prüfen Blendenverluste über einen unabhängigen Ansatz aus Messdifferenzdruck und Druckrückgewinnungsfaktor (12 Kombinationen aus β und Cd), ungültige Geometrie, Umrechnung auf einen anderen lokalen Rohrdurchmesser, Pumpeninterpolation und Dichtebezug, ungültige/mehrdeutige Kennlinien, Extrapolationsverbot, einen analytisch lösbaren Schnittpunkt mit quadratischer Systemkurve, einen Schnittpunkt im zweiten Pumpensegment, Randlösungen, fehlende Schnittpunkte, Q=0 und die Ablehnung einer falschen Nullstelle bei einem Modellsprung.
 
-`ErweiterungenValidieren` prüft den tatsächlichen VBA-Code mit **29 zusätzlichen Fällen**: 12 Blendenreferenzen, zwei Anlagenpunkte mit Blende (einschließlich Q=0), analytische Pumpenlösung und Residuum, stückweise lineare Kennlinie, beide Randpunkte und 10 Fehlerfälle einschließlich des realen Re=2300-Modellsprungs. Die Blendenreferenzen entstehen unabhängig über Druckrückgewinnung; die Pumpenreferenzen sind analytische Lösungen. Relative/absolute Misch-Toleranz 10⁻⁶·(1+|Referenz|); der eigentliche Pumpensolver verlangt ein Druckresiduum ≤10⁻⁸ bar.
+`ErweiterungenValidieren` prüft den tatsächlichen VBA-Code mit **37 zusätzlichen Fällen**: 12 Blendenreferenzen, zwei Anlagenpunkte mit Blende (einschließlich Q=0), analytische Pumpenlösung und Residuum, stückweise lineare Kennlinie, beide Randpunkte und 10 Fehlerfälle einschließlich des realen Re=2300-Modellsprungs, ergänzt in Version 1.2 um fünf Kv-Referenzen und drei Kv-Fehlerfälle. Die Blendenreferenzen entstehen unabhängig über Druckrückgewinnung; die Pumpenreferenzen sind analytische Lösungen. Relative/absolute Misch-Toleranz 10⁻⁶·(1+|Referenz|); der eigentliche Pumpensolver verlangt ein Druckresiduum ≤10⁻⁸ bar.
 
-`ValidierungStarten` startet beide Sätze: zuerst die 29 Erweiterungsfälle, dann die Erfolgsmeldung der 20 ursprünglichen Rechenkernfälle. Insgesamt **49 vorbereitete VBA-Testfälle**, weiterhin **nicht in Excel ausgeführt**. Die Cloud prüft Python-Transkriptionen und Dateistruktur, keine VBA-Laufzeit.
+`ValidierungStarten` startet beide Sätze: zuerst die 37 Erweiterungsfälle, dann die Erfolgsmeldung der 20 ursprünglichen Rechenkernfälle. Insgesamt **57 vorbereitete VBA-Testfälle**, weiterhin **nicht in Excel ausgeführt**. Die Cloud prüft Python-Transkriptionen und Dateistruktur, keine VBA-Laufzeit.
 
 Zusätzliche erforderliche Excel-Abnahme:
 
@@ -60,6 +60,25 @@ Zusätzliche erforderliche Excel-Abnahme:
 - Pumpen-Beispieldaten ersetzen, Zeile hinzufügen/entfernen und berechnen. Förderhöhe-Druck-Umrechnung mit zwei Dichten prüfen. N11−I11 muss O11 entsprechen und |O11| ≤10⁻⁸ bar sein.
 - Q-Sortierung, doppelte Q, steigende/konstante H, negative H und leere Tabellenzeilen müssen abgelehnt werden. Fehlenden Schnittpunkt, Randlösung und nicht konvergierenden Modellsprung prüfen.
 - Pumpendiagramm muss unabhängig vom zuvor berechneten Systemdiagramm aktuelle Daten und den berechneten Betriebspunkt zeigen.
-- Alle sieben Module in eine neue Vorlage importieren, kompilieren, speichern und nach erneutem Öffnen sämtliche Modi ausführen.
+- Alle acht Module in eine neue Vorlage importieren, kompilieren, speichern und nach erneutem Öffnen sämtliche Modi ausführen.
 
 Die Abnahme der Excel-Integration bleibt offen. Die erste Version ersetzt keine projektbezogene Prüfung der Stoffdaten, Widerstandsbeiwerte und Modellannahmen.
+
+
+## Ergänzungen Version 1.2
+
+Sieben weitere Cloud-Tests: Kv-Referenzdruck für Wasser und andere Dichte, Serie und Q=0; unveränderter Druck bei Umrechnung auf unterschiedliche Hauptrohrdurchmesser; unabhängige lokale Formelreferenzen im Standalone-Blatt; plausibles Verhältnis Mess-/bleibender Druck; A4-Druckbereiche; frische Eingaben und eigene Diagrammdaten im Systembericht; Kv-Eingabe und Ausgabespalten.
+
+Acht zusätzliche tatsächliche VBA-Prüfungen sind vorbereitet: fünf Kv-Referenzen einschließlich Integration in den Anlagenpunkt sowie drei unzulässige Kv-Eingaben. Insgesamt 37 Erweiterungs- plus 20 ursprüngliche Kernfälle. Die 34 Cloud-Tests führen weiterhin kein VBA und keine Excel-Formelauswertung aus.
+
+Noch in Microsoft Excel zu prüfen:
+
+- Alle **acht** Module in die neue Vorlage importieren, kompilieren und `Einrichtung` ausführen; Systembericht-Schaltfläche darf außerhalb des Druckbereichs erscheinen.
+- Kv=10, Q=10 m³/h, rho=1000: eine Armatur erzeugt 1 bar; drei in Serie 3 bar. Kv deaktivieren; Kernwerte müssen wiederhergestellt sein. Ungültige Kv/Anzahl ablehnen.
+- `Blende_Standalone` allein in eine neue makrofreie Arbeitsmappe kopieren. Eingaben ändern: Ergebnisse müssen neu berechnet werden. DN-Vorschlag, Q=0, ungültige Geometrie, Cd und Viskosität testen. Ungültige Eingaben dürfen keine verwendbaren Ergebniszahlen liefern.
+- Eigenständige Blende gegen dieselben Parameter der Systemblende bei Rohrlänge 0 und ohne sonstige Verluste vergleichen. Messdruck und bleibenden Druck nicht verwechseln.
+- Druckvorschau Standalone: eine A4-Seite; sämtliche Eingaben, Formeln, Ergebnisse und Grenzen lesbar, keine abgeschnittenen Zeilen.
+- Systembericht ohne Pumpe und mit Pumpe erstellen. Werte mit den anderen Modi vergleichen. Nach Eingabeänderung Bericht neu erstellen; Chart muss aktuelle Daten und bei Pumpe den aktuellen Schnittpunkt zeigen. Bericht erneut ohne Pumpe erstellen: alte Pumpenserie muss verschwinden.
+- Druckvorschau Bericht: Deckblatt auf Seite 1, vollständiger Anhang ab Seite 2, kein Steuerelement im Druckbereich. Metadaten beim Neuerstellen erhalten. Bei Berechnungsfehler muss die Ungültig-Markierung im Bericht sichtbar sein.
+
+Die Datei-/Druckeinstellungen sind in der Cloud geprüft; Excel-Formelberechnung, VBA-Ausführung und tatsächliches Druckrendering bleiben offen.

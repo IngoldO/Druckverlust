@@ -2,13 +2,14 @@ Attribute VB_Name = "Betriebsoberflaeche"
 Option Explicit
 
 Private Sub SchreibePunkt(ByVal ws As Worksheet, ByVal zeile As Long, ByRef r As Betriebspunkt, ByRef a As Anlagendaten)
-    Dim data(1 To 1, 1 To 12) As Variant
+    Dim data(1 To 1, 1 To 13) As Variant
     data(1, 1) = r.Q: data(1, 2) = r.V: data(1, 3) = r.Re
     data(1, 4) = r.Lambda: data(1, 5) = r.RohrBar: data(1, 6) = r.EinzelBar
     data(1, 7) = r.HoeheBar: data(1, 8) = r.BehaelterBar: data(1, 9) = r.GesamtBar
     data(1, 10) = r.Regime: data(1, 11) = r.Hinweis
     data(1, 12) = a.ZBlende * a.Rho * r.V ^ 2 / 200000#
-    ws.Cells(zeile, 1).Resize(1, 12).Value = data
+    data(1, 13) = a.ZKv * a.Rho * r.V ^ 2 / 200000#
+    ws.Cells(zeile, 1).Resize(1, 13).Value = data
 End Sub
 
 Public Sub EinzelpunktBerechnen()
@@ -84,7 +85,7 @@ Private Sub ZeichnePumpe(ByVal ws As Worksheet, ByVal n As Long)
         s.Name = "Pumpe"
         s.XValues = ws.Range("A21").Resize(n, 1): s.Values = ws.Range("C21").Resize(n, 1)
         Set s = .SeriesCollection.NewSeries
-        s.Name = "System inkl. Lochblende"
+        s.Name = "System inkl. Blende/Kv"
         s.XValues = ws.Range("N5:N205"): s.Values = ws.Range("O5:O205")
         Set s = .SeriesCollection.NewSeries
         s.Name = "Betriebspunkt"

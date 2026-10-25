@@ -15,7 +15,7 @@ Public Sub SystemkennlinieBerechnen()
     If qmin < 0 Or qmax <= qmin Then Err.Raise vbObjectError + 21, , "Erforderlich: 0 <= Q min < Q max."
     If punkte < 2 Or punkte > 10000 Or punkte <> Fix(punkte) Then Err.Raise vbObjectError + 22, , "Punktanzahl muss ganzzahlig zwischen 2 und 10000 sein."
     n = CLng(punkte)
-    ReDim daten(1 To n, 1 To 12)
+    ReDim daten(1 To n, 1 To 13)
     For i = 1 To n
         q = qmin + (qmax - qmin) * (i - 1) / (n - 1)
         r = Anlagenpunkt(q, a)
@@ -24,11 +24,12 @@ Public Sub SystemkennlinieBerechnen()
         daten(i, 7) = r.HoeheBar: daten(i, 8) = r.BehaelterBar: daten(i, 9) = r.GesamtBar
         daten(i, 10) = r.Regime: daten(i, 11) = r.Hinweis
         daten(i, 12) = a.ZBlende * a.Rho * r.V ^ 2 / 200000#
+        daten(i, 13) = a.ZKv * a.Rho * r.V ^ 2 / 200000#
     Next i
-    out.Range("A5:L10004").ClearContents
-    out.Range("A5").Resize(n, 12).Value = daten
+    out.Range("A5:M10004").ClearContents
+    out.Range("A5").Resize(n, 13).Value = daten
     out.Range("A2").Value = "Gueltiger Lauf: " & Format(Now, "yyyy-mm-dd hh:nn:ss") & " | Summe n*zeta = " & Format(a.Z, "0.000")
-    out.Range("B3").Value = "Armaturen enthalten aktive Lochblende; Spalte L ist darin enthalten."
+    out.Range("B3").Value = "Armaturen enthalten aktive Lochblende/Kv; Spalten L/M sind darin enthalten."
     ZeichneKennlinie out, n
     out.Activate
     Exit Sub
@@ -86,5 +87,6 @@ Public Sub Einrichtung()
         b.Fill.ForeColor.RGB = RGB(24, 84, 105)
         b.TextFrame.Characters.Font.Color = RGB(255, 255, 255)
     Next i
+    BerichtsSchaltflaeche
     MsgBox "Einrichtung abgeschlossen. DN-Vorschlag bei Bedarf uebernehmen; Berechnung ueber Schaltflaeche starten.", vbInformation
 End Sub

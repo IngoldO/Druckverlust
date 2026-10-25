@@ -72,8 +72,8 @@ class WorkbookValidation(unittest.TestCase):
     def test_archive_integrity(self):self.assertIsNone(self.z.testzip())
     def test_sheets_and_named_ranges(self):
         root=self.xml('xl/workbook.xml')
-        self.assertEqual([s.attrib['name'] for s in root.findall('s:sheets/s:sheet',NS)],['Eingabe','Ergebnisse','Armaturendatenbank','Lochblende','Pumpe','Betriebspunkte'])
-        self.assertEqual({n.attrib['name'] for n in root.findall('s:definedNames/s:definedName',NS)},{'DNWerte','ArmaturenTypen'})
+        self.assertEqual([s.attrib['name'] for s in root.findall('s:sheets/s:sheet',NS)],['Eingabe','Ergebnisse','Armaturendatenbank','Lochblende','Pumpe','Betriebspunkte','KvArmatur','Blende_Standalone','Systembericht'])
+        self.assertEqual({n.attrib['name'] for n in root.findall('s:definedNames/s:definedName',NS) if not n.attrib['name'].startswith('_xlnm.')},{'DNWerte','ArmaturenTypen'})
     def test_table_contract(self):
         tables=[self.xml(n) for n in self.z.namelist() if n.startswith('xl/tables/')]
         self.assertEqual({t.attrib['name'] for t in tables},{'tblArmaturen','tblDatenbank','tblPumpe'})
@@ -96,7 +96,7 @@ class WorkbookValidation(unittest.TestCase):
         self.assertEqual(len(chart.findall('.//c:scatterChart/c:ser',ns)),3)
     def test_import_files_are_ascii_and_modules(self):
         files=list((ROOT/'vba').glob('*.bas'))
-        self.assertEqual(len(files),7)
+        self.assertEqual(len(files),8)
         for f in files:
             data=f.read_bytes();data.decode('ascii')
             self.assertIn(b'Option Explicit',data)

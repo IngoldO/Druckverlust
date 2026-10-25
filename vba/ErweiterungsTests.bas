@@ -33,6 +33,20 @@ Public Sub ErweiterungenValidieren()
     count = count + 1
     Nah BlendenZeta(0.05#, 0.037500000000000006#, 0.69999999999999996#), 1.7576461319778298#, "Blende beta=0.75 Cd=0.7"
     count = count + 1
+    Nah KvDruck(10, 10, 1000), 1, "Kv Wasser"
+    count = count + 1
+    Nah KvDruck(20, 10, 800), 3.2, "Kv Dichte"
+    count = count + 1
+    Nah KvDruck(0, 10, 1000), 0, "Kv Q=0"
+    count = count + 1
+    Nah 3 * KvDruck(10, 10, 1000), 3, "Kv in Serie"
+    count = count + 1
+    a.D = 0.05: a.Rho = 1000: a.Mu = 0.001
+    a.ZKv = KvDruck(1, 10, 1000) * 200000# / 1000# * (3600# * 4 * Atn(1#) * a.D ^ 2 / 4) ^ 2
+    a.Z = a.ZKv: r = Anlagenpunkt(10, a)
+    Nah r.GesamtBar, 1, "Kv im Anlagenpunkt"
+    count = count + 1
+    a.ZKv = 0
     a.D = 0.05: a.Rho = 1000: a.Mu = 0.001
     a.BlendeD = 0.05: a.ZBlende = BlendenZeta(0.05, 0.025, 0.61): a.Z = 2 + a.ZBlende
     r = Anlagenpunkt(10, a)
@@ -59,7 +73,7 @@ Public Sub ErweiterungenValidieren()
     a.DP = 0: r = PumpenSchnittpunkt(a, qs, hs)
     Nah r.Q, 20, "Rechter Randpunkt"
     count = count + 1
-    For i = 1 To 10
+    For i = 1 To 13
         On Error Resume Next
         Err.Clear
         Select Case i
@@ -79,6 +93,9 @@ Public Sub ErweiterungenValidieren()
             hs(2) = 8.103250969209622#
             hs(3) = 8.0930538070798423#
             r = PumpenSchnittpunkt(a, qs, hs)
+        Case 11: wert = KvDruck(-1, 10, 1000)
+        Case 12: wert = KvDruck(1, 0, 1000)
+        Case 13: wert = KvDruck(1, 10, 0)
         End Select
         code = Err.Number
         On Error GoTo Fehler

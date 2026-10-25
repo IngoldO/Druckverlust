@@ -10,6 +10,7 @@ Public Function Anlagenpunkt(ByVal q As Double, ByRef a As Anlagendaten) As Betr
         If q > 0 And reLokal < 10000 Then r.Hinweis = r.Hinweis & " Blenden-Re <10000: Modell besonders unsicher."
         If Abs(a.BlendeD - a.D) > 0.000000001 Then r.Hinweis = r.Hinweis & " Abweichender Blenden-D: Reduzierungen separat beruecksichtigen."
     End If
+    If a.ZKv > 0 Then r.Hinweis = r.Hinweis & " Kv: konstante Oeffnung; turbulent, nicht kavitierend angenommen; Herstellergrenzen pruefen."
     Anlagenpunkt = r
 End Function
 

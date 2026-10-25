@@ -25,6 +25,7 @@ Public Type Anlagendaten
     H As Double
     DP As Double
     Z As Double
+    ZKv As Double
     ZBlende As Double
     BlendeD As Double
 End Type
@@ -95,4 +96,10 @@ Public Function BlendenZeta(ByVal rohrD As Double, ByVal lochD As Double, ByVal 
     If beta > 0.75 Then beta = 0.75
     a = Sqr(1 - beta ^ 4 * (1 - cd ^ 2))
     BlendenZeta = (a / (cd * beta ^ 2) - 1) ^ 2
+End Function
+
+' Kv [m3/h] at 1 bar with reference water density 1000 kg/m3.
+Public Function KvDruck(ByVal q As Double, ByVal kv As Double, ByVal rho As Double) As Double
+    If q < 0 Or kv <= 0 Or rho <= 0 Then Err.Raise vbObjectError + 60, , "Kv: Q >= 0, Kv > 0 und Dichte > 0 erforderlich."
+    KvDruck = (rho / 1000#) * (q / kv) ^ 2
 End Function

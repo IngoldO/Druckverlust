@@ -1,6 +1,7 @@
 """Rebuild the macro-free template. Build dependency: XlsxWriter 3.2.9."""
 from pathlib import Path
 import xlsxwriter
+from report_sheets import build_report_sheets
 
 ROOT = Path(__file__).resolve().parents[1]
 ARMATUREN = [
@@ -66,8 +67,8 @@ def build():
     r.write('A1','Ergebnisse und Systemkennlinie',title)
     r.write('A2','NOCH NICHT BERECHNET – VBA importieren und Berechnung starten.',note)
     r.write('A3','Nach Aenderungen neu berechnen. Tabelleninhalt gilt nur fuer den letzten erfolgreichen Lauf.',note)
-    headers=['Q [m³/h]','v [m/s]','Re [-]','Darcy λ [-]','Rohr [bar]','Armaturen [bar]','Geodaetisch [bar]','Behaelter [bar]','Gesamt [bar]','Regime','Warnung','davon Blende [bar]']
-    r.write_row('A4',headers,head);r.set_row(3,32);r.set_column('A:I',17,num);r.set_column('J:J',16);r.set_column('K:K',85);r.set_column('L:L',22,num)
+    headers=['Q [m³/h]','v [m/s]','Re [-]','Darcy λ [-]','Rohr [bar]','Armaturen [bar]','Geodaetisch [bar]','Behaelter [bar]','Gesamt [bar]','Regime','Warnung','davon Blende [bar]','davon Kv [bar]']
+    r.write_row('A4',headers,head);r.set_row(3,32);r.set_column('A:I',17,num);r.set_column('J:J',16);r.set_column('K:K',85);r.set_column('L:M',22,num)
     r.freeze_panes(4,1)
     r.conditional_format('J5:J10004',{'type':'text','criteria':'containing','value':'Uebergang','format':note})
     chart=w.add_chart({'type':'scatter','subtype':'straight'})
@@ -107,7 +108,7 @@ def build():
     pump_chart.set_x_axis({'name':'Q [m³/h]'});pump_chart.set_y_axis({'name':'Differenzdruck [bar]'})
     pump_chart.set_size({'width':850,'height':440});p.insert_chart('E20',pump_chart)
     op=w.add_worksheet('Betriebspunkte')
-    op.set_column('A:I',17,num);op.set_column('J:J',16);op.set_column('K:K',85);op.set_column('L:L',22,num);op.set_column('N:O',23,num)
+    op.set_column('A:I',17,num);op.set_column('J:J',16);op.set_column('K:K',85);op.set_column('L:M',22,num);op.set_column('N:O',23,num)
     op.write('A1','Einzelpunkt und Pumpenbetriebspunkt',title)
     op.write('A2','Nach Aenderungen jeden gewuenschten Berechnungsmodus neu starten. Blendenanteil ist in Armaturen enthalten.',note)
     op.write('A3','Einzelpunkt: NOCH NICHT BERECHNET',note)
@@ -116,6 +117,20 @@ def build():
     op.write('A9','Pumpenschnittpunkt: NOCH NICHT BERECHNET',note)
     op.write_row('A10',headers,head);op.set_row(9,32)
     op.conditional_format('J5:J11',{'type':'text','criteria':'containing','value':'Uebergang','format':note})
+    kv=w.add_worksheet('KvArmatur')
+    kv.set_column('A:A',42);kv.set_column('B:C',20);kv.set_column('D:F',18)
+    kv.write('A1','Armatur mit Kv-Wert',title)
+    kv.merge_range('A2:F3','Kv in m³/h: Wasser mit Referenzdichte 1000 kg/m³ bei 1 bar. Aktuellen Kv fuer die festgelegte Oeffnung verwenden, nicht ungeprueft Kvs.',note)
+    for row,(label,value,unit) in enumerate([('Aktiv (0=aus, 1=ein)',0,'—'),('Kv der Armatur',10,'m³/h'),('Anzahl gleicher Armaturen in Serie',1,'—')],4):
+        kv.write(row,0,label);kv.write(row,1,value,entry);kv.write(row,2,unit)
+    kv.data_validation('B5',{'validate':'integer','criteria':'between','minimum':0,'maximum':1})
+    kv.data_validation('B6',{'validate':'decimal','criteria':'>','value':0})
+    kv.data_validation('B7',{'validate':'integer','criteria':'between','minimum':1,'maximum':1000})
+    kv.merge_range('A10:F13','Delta p [bar] = n (rho/1000) (Q/Kv)^2. Gilt als Naeherung fuer turbulente, nicht kavitierende Fluessigkeitsstroemung bei konstanter Oeffnung. Keine Viskositaets-, FL-, Kavitation- oder Choked-Flow-Korrektur. Herstellergrenzen pruefen. Der Anteil wird den Einzelwiderstaenden zugerechnet und in Spalte M separat ausgewiesen.',note)
+    build_report_sheets(w,DNS)
     w.close()
+    standalone=xlsxwriter.Workbook(ROOT / "excel" / "Drosselblende_Standalone.xlsx")
+    build_report_sheets(standalone,DNS,include_system=False)
+    standalone.close()
     return path
 if __name__ == '__main__':print(build())

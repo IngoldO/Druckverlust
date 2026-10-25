@@ -17,6 +17,15 @@ def build():
     for b in [.2,.25,.5,.75]:
         for cd in [.55,.61,.7]:
             lines += [f'    Nah BlendenZeta(0.05#, {lit(.05*b)}, {lit(cd)}), {lit(orifice_reference(.05,.05*b,cd))}, "Blende beta={b} Cd={cd}"','    count = count + 1']
+    lines += ['    Nah KvDruck(10, 10, 1000), 1, "Kv Wasser"', '    count = count + 1',
+    '    Nah KvDruck(20, 10, 800), 3.2, "Kv Dichte"', '    count = count + 1',
+    '    Nah KvDruck(0, 10, 1000), 0, "Kv Q=0"', '    count = count + 1',
+    '    Nah 3 * KvDruck(10, 10, 1000), 3, "Kv in Serie"', '    count = count + 1',
+    '    a.D = 0.05: a.Rho = 1000: a.Mu = 0.001',
+    '    a.ZKv = KvDruck(1, 10, 1000) * 200000# / 1000# * (3600# * 4 * Atn(1#) * a.D ^ 2 / 4) ^ 2',
+    '    a.Z = a.ZKv: r = Anlagenpunkt(10, a)',
+    '    Nah r.GesamtBar, 1, "Kv im Anlagenpunkt"', '    count = count + 1',
+    '    a.ZKv = 0']
     z=orifice_reference(.05,.025,.61)
     loss=(z+2)*1000/2/1e5*(10/3600/(math.pi*.05**2/4))**2
     lines += ['    a.D = 0.05: a.Rho = 1000: a.Mu = 0.001',
@@ -46,7 +55,7 @@ def build():
     '    Nah r.Q, 0, "Linker Randpunkt"','    count = count + 1',
     '    a.DP = 0: r = PumpenSchnittpunkt(a, qs, hs)',
     '    Nah r.Q, 20, "Rechter Randpunkt"','    count = count + 1',
-    '    For i = 1 To 10','        On Error Resume Next','        Err.Clear','        Select Case i',
+    '    For i = 1 To 13','        On Error Resume Next','        Err.Clear','        Select Case i',
     '        Case 1: wert = BlendenZeta(0.05, 0.05, 0.61)',
     '        Case 2: wert = BlendenZeta(0.05, 0.001, 0.61)',
     '        Case 3: wert = BlendenZeta(0.05, 0.025, 0)',
@@ -63,6 +72,9 @@ def build():
     f'            hs(2) = {lit(target*1e5/(1000*9.80665))}',
     f'            hs(3) = {lit((target-.001)*1e5/(1000*9.80665))}',
     '            r = PumpenSchnittpunkt(a, qs, hs)',
+    '        Case 11: wert = KvDruck(-1, 10, 1000)',
+    '        Case 12: wert = KvDruck(1, 0, 1000)',
+    '        Case 13: wert = KvDruck(1, 10, 0)',
     '        End Select','        code = Err.Number','        On Error GoTo Fehler',
     '        If code = 0 Then Err.Raise vbObjectError + 151, , "Fehlerfall akzeptiert: " & i',
     '        count = count + 1','    Next i',

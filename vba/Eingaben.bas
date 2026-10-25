@@ -110,6 +110,17 @@ Public Function LeseAnlage() As Anlagendaten
         a.ZBlende = n * BlendenZeta(a.BlendeD, loch, cd) * (a.D / a.BlendeD) ^ 4
         a.Z = a.Z + a.ZBlende
     End If
+    Set b = ThisWorkbook.Worksheets("KvArmatur")
+    aktiv = Zahl(b.Range("B5"), "Kv-Armatur aktiv")
+    If aktiv <> 0 And aktiv <> 1 Then Err.Raise vbObjectError + 61, , "Kv aktiv muss 0 oder 1 sein."
+    If aktiv = 1 Then
+        cd = Zahl(b.Range("B6"), "Kv [m3/h]")
+        n = Zahl(b.Range("B7"), "Kv-Armaturenanzahl")
+        If n < 1 Or n > 1000 Or n <> Fix(n) Then Err.Raise vbObjectError + 62, , "Kv-Anzahl ganzzahlig 1 bis 1000."
+        ' Equivalent zeta on the main-pipe velocity; n identical valves in series.
+        a.ZKv = n * KvDruck(1, cd, a.Rho) * 200000# / a.Rho * (3600# * (4 * Atn(1#)) * a.D ^ 2 / 4) ^ 2
+        a.Z = a.Z + a.ZKv
+    End If
     LeseAnlage = a
 End Function
 
