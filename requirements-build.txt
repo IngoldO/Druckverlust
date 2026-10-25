@@ -1,0 +1,2 @@
+# Only for regenerating the XLSX template; no Excel runtime dependency.
+XlsxWriter==3.2.9
