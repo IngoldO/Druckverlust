@@ -56,7 +56,7 @@ Public Sub NetzwerkBerichtErstellen()
     On Error GoTo Fehler
     Dim ws As Worksheet, k() As NetzKnoten, e() As NetzLeitung, pq() As Double, ph() As Double
     Dim rho As Double, mu As Double, lim As Long, tq As Double, tp As Double, r As NetzResultat
-    Dim row As Long, i As Long, j As Long, pump As Boolean, status As String, line As String
+    Dim row As Long, i As Long, j As Long, pump As Boolean, status As String, armaturenText As String
     Dim t As ListObject, lr As ListRow, p As Betriebspunkt, ch As ChartObject, s As Series, richtung As String
     Dim aktiv As Boolean, wirksam As Double, zeilenhoehe As Double, tempHoehe As Double
     Dim data() As Variant, kc() As NetzKnoten, cr As NetzResultat, dp As Double, q As Double
@@ -125,9 +125,9 @@ Public Sub NetzwerkBerichtErstellen()
     BerichtZeile ws, row, "ARMATUREN | vollstaendige Zuordnung und Eingaben; aktive Modelle werden genau einmal addiert"
     Set t = ThisWorkbook.Worksheets("Netzwerk_Armaturen").ListObjects("tblNetzArmaturen")
     For Each lr In t.ListRows
-        line = ""
+        armaturenText = ""
         For j = 1 To t.ListColumns.Count
-            line = line & t.ListColumns(j).Name & "=" & CStr(lr.Range.Cells(1, j).Value) & "; "
+            armaturenText = armaturenText & t.ListColumns(j).Name & "=" & CStr(lr.Range.Cells(1, j).Value) & "; "
         Next j
         aktiv = True
         If Not IsEmpty(lr.Range.Cells(1, 10).Value) Then aktiv = (Zahl(lr.Range.Cells(1, 10), "Aktiv") = 1)
@@ -135,11 +135,11 @@ Public Sub NetzwerkBerichtErstellen()
             If Zahl(lr.Range.Cells(1, 4), "Anzahl") > 0 Then
                 If CStr(lr.Range.Cells(1, 2).Value) = "Zeta" Or CStr(lr.Range.Cells(1, 2).Value) = "Rueckschlag" Then
                     If IsEmpty(lr.Range.Cells(1, 5).Value) Then wirksam = StandardZeta(CStr(lr.Range.Cells(1, 3).Value)) Else wirksam = Zahl(lr.Range.Cells(1, 5), "Zeta")
-                    line = line & "wirksames Zeta je Armatur=" & wirksam
+                    armaturenText = armaturenText & "wirksames Zeta je Armatur=" & wirksam
                 End If
             End If
         End If
-        BerichtZeile ws, row, line
+        BerichtZeile ws, row, armaturenText
     Next lr
     If pump Then
         BerichtZeile ws, row, "PUMPENSTUETZPUNKTE | konstante Drehzahl; linear zwischen Punkten, keine Extrapolation"

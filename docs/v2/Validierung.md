@@ -13,7 +13,7 @@ python -m unittest discover -s tests -v
 
 Alle Befehle im Repository-Verzeichnis ausführen. Installation ist nur für Entwicklungsprüfungen/Generierung nötig; Excel/VBA benötigt weder Python noch NumPy/SciPy.
 
-Ergebnis: **67 Python-Tests bestanden**, davon alle 38 bisherigen Tests unverändert und 29 zusätzliche Tests. Die Regression prüft zusätzlich unveränderte SHA-256-Werte sämtlicher inventarisierter V1-Module, Generatoren, Tests und Arbeitsmappen. In der V2-Vorlage stimmen die Zellwerte/Formeln/Formatindizes der zehn alten Blätter sowie die bisherigen Tabellen- und Diagramm-XMLs mit V1 überein.
+Ergebnis: **70 Python-Tests bestanden**, davon alle 38 bisherigen Tests unverändert und 32 zusätzliche Tests. Die Regression prüft zusätzlich unveränderte SHA-256-Werte sämtlicher inventarisierter V1-Module, Generatoren, Tests und Arbeitsmappen. In der V2-Vorlage stimmen die Zellwerte/Formeln/Formatindizes der zehn alten Blätter sowie die bisherigen Tabellen- und Diagramm-XMLs mit V1 überein.
 
 **Kein VBA wurde hier kompiliert oder ausgeführt.** Die bestehenden 20+37 VBA-Fälle sind bytegleich erhalten. `NetzwerkValidieren` ergänzt **25 Netzwerk-Kernfälle und 8 Funktionstests**, insgesamt damit 90 vorbereitete tatsächliche VBA-Testfälle zur späteren Windows-Abnahme. Python-Algorithmusprüfungen ersetzen diese Ausführung nicht.
 
@@ -99,3 +99,10 @@ Erweiterte Excel-Abnahme:
 9. Speichern, schließen, ohne Netzwerkverbindung erneut öffnen und alle Modi rechnen.
 
 **Offener Rest:** vollständige VBA-Kompilierung/Ausführung, visuelle Prüfung und Druckabnahme in Microsoft Excel für Windows. Diese Prüfungen können in der vorhandenen Linux-Cloud nicht durchgeführt werden und sind nicht als bestanden ausgewiesen.
+
+
+## Korrektur eines gemeldeten VBA-Kompilierfehlers
+
+Die Variablennamen `scale` und `step` im Solver kollidierten mit VBA-Schlüsselwörtern. Lokale Namen wurden in `NetzSolver.bas`, `NetzDiagramm.bas` und `NetzBericht.bas` eindeutig umbenannt; dabei wurden auch `line` und `width` als lokale Namen vermieden. Office-Eigenschaften wie `.Line` und `.Width` bleiben erhalten. Drei gezielte Python-Regressionstests erkennen diese Deklarationen und prüfen, dass Office-Member erhalten bleiben. Das ist eine gezielte Textprüfung und kein VBA-Compiler.
+
+Bestehende V2-Anwender: Arbeitsmappe sichern; im VBA-Editor die drei genannten Module entfernen (bei eigener Bearbeitung zuvor exportieren) und die aktuellen BAS-Dateien vom Entwicklungsbranch importieren. Anschließend Debuggen → VBAProject kompilieren. Eine XLSX muss als XLSM gespeichert werden, damit importierter VBA-Code beim Schließen erhalten bleibt. Andere Eingaben und Arbeitsblätter müssen für diesen Fix nicht ersetzt werden.

@@ -11,7 +11,7 @@
 | 5 Netzwerkschema | Shapes mit Richtung, Druck, Q, IDs und Pumpensymbol; automatische Anordnung und explizit speicherbare X/Y-Positionen implementiert |
 | 6 Pumpe/Systemkurve | Pumpe im gekoppelten Netz; Q-Sweep mit neuer Verteilung je Punkt und erforderlichem Einspeisedruck/Pumpen-dp implementiert |
 | 7 Netzwerkbericht | Eigenständiger A4-Netzwerkbericht mit Schema, Eingabestand, Resultaten, Formeln, Annahmen und optionalem Kennliniendiagramm implementiert |
-| 8 Abnahme | 67 Cloud-Tests bestanden; tatsächliche VBA-Ausführung, Migration einer externen V4-XLSM und Windows-Excel-/Druckabnahme offen |
+| 8 Abnahme | 70 Cloud-Tests bestanden; tatsächliche VBA-Ausführung, Migration einer externen V4-XLSM und Windows-Excel-/Druckabnahme offen |
 
 Die bisherige Einzelrohr-Systemkurve bleibt vollständig vorhanden und ist von der neuen Netzwerk-Kennlinie unabhängig.
 

@@ -11,18 +11,18 @@ End Function
 ' Partial pivoting on a row-scaled Jacobian, normalized unknowns.
 Private Sub Gauss(ByRef a() As Double, ByRef b() As Double, ByRef dx() As Double, ByRef ratio As Double)
     Dim n As Long, i As Long, j As Long, k As Long, pivot As Long
-    Dim scale As Double, v As Double, t As Double, big As Double, small As Double
+    Dim zeilenFaktor As Double, v As Double, t As Double, big As Double, small As Double
     n = UBound(b): ReDim dx(1 To n)
     For i = 1 To n
-        scale = 0
+        zeilenFaktor = 0
         For j = 1 To n
-            If Abs(a(i, j)) > scale Then scale = Abs(a(i, j))
+            If Abs(a(i, j)) > zeilenFaktor Then zeilenFaktor = Abs(a(i, j))
         Next j
-        If scale = 0 Then NetzFehler "Singulaere Jacobi-Matrix: unzureichende Randbedingungen."
+        If zeilenFaktor = 0 Then NetzFehler "Singulaere Jacobi-Matrix: unzureichende Randbedingungen."
         For j = 1 To n
-            a(i, j) = a(i, j) / scale
+            a(i, j) = a(i, j) / zeilenFaktor
         Next j
-        b(i) = b(i) / scale
+        b(i) = b(i) / zeilenFaktor
     Next i
     small = 1E+100
     For k = 1 To n
@@ -93,7 +93,7 @@ Public Sub NetzLoesen(ByRef k() As NetzKnoten, ByRef e() As NetzLeitung, ByVal r
     Dim im() As Long, ip() As Long, x() As Double, trial() As Double, f() As Double, ft() As Double
     Dim jac() As Double, rhs() As Double, dx() As Double, tmp As NetzResultat
     Dim m As Long, nf As Long, dimn As Long, i As Long, j As Long, it As Long, back As Long, pump As Long
-    Dim qs As Double, ps As Double, meanHead As Double, count As Long, step As Double, old As Double
+    Dim qs As Double, ps As Double, meanHead As Double, count As Long, differenzSchritt As Double, old As Double
     Dim merit As Double, alpha As Double, ratio As Double, feasible As Boolean, accepted As Boolean
     Dim q As Double, drive As Double, energy As Double, message As String
     Dim connected() As Boolean, changed As Boolean
@@ -147,16 +147,16 @@ Public Sub NetzLoesen(ByRef k() As NetzKnoten, ByRef e() As NetzLeitung, ByVal r
         If it = maxIter Then NetzFehler "Keine Konvergenz nach " & maxIter & " Iterationen. Keine gueltigen Resultate."
         ReDim jac(1 To dimn, 1 To dimn): ReDim rhs(1 To dimn)
         For j = 1 To dimn
-            old = x(j): step = 0.000001 * (1 + Abs(old))
+            old = x(j): differenzSchritt = 0.000001 * (1 + Abs(old))
             If pump > 0 And festPumpQ < 0 Then
-                If j = im(pump) And (old + step) * qs > pq(UBound(pq)) Then step = -step
-                If j = im(pump) And (old + step) * qs < 0 Then step = (pq(UBound(pq)) / qs - old) / 2
+                If j = im(pump) And (old + differenzSchritt) * qs > pq(UBound(pq)) Then differenzSchritt = -differenzSchritt
+                If j = im(pump) And (old + differenzSchritt) * qs < 0 Then differenzSchritt = (pq(UBound(pq)) / qs - old) / 2
             End If
-            x(j) = old + step
+            x(j) = old + differenzSchritt
             Residuum k, e, im, ip, nf, m, festPumpQ, x, qs, ps, rho, mu, pq, ph, tolQ, tolP, ft
             x(j) = old
             For i = 1 To dimn
-                jac(i, j) = (ft(i) - f(i)) / step
+                jac(i, j) = (ft(i) - f(i)) / differenzSchritt
             Next i
         Next j
         For i = 1 To dimn
