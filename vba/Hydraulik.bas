@@ -16,6 +16,19 @@ Public Type Betriebspunkt
     Hinweis As String
 End Type
 
+Public Type Anlagendaten
+    D As Double
+    L As Double
+    Eps As Double
+    Rho As Double
+    Mu As Double
+    H As Double
+    DP As Double
+    Z As Double
+    ZBlende As Double
+    BlendeD As Double
+End Type
+
 ' Darcy factor; Colebrook fixed point stops at absolute change <1E-10 in 1/sqrt(lambda).
 ' Transition: upper envelope of laminar and turbulent branches, NOT interpolation.
 Public Function Reibungsbeiwert(ByVal re As Double, ByVal relRau As Double) As Double
@@ -69,4 +82,17 @@ Public Function BerechnePunkt(ByVal q As Double, ByVal d As Double, ByVal l As D
     If r.V > 5 Then r.Hinweis = r.Hinweis & " Hohe Geschwindigkeit >5 m/s: Auslegung pruefen."
     If r.GesamtBar < 0 Then r.Hinweis = r.Hinweis & " Negative Druckerhoehung: statischer Antrieb; Systemgrenzen pruefen."
     BerechnePunkt = r
+End Function
+
+' Permanent loss of a thin sharp-edged concentric orifice, not tapping differential.
+' Cd is an explicitly assumed constant; no ISO 5167 metering certification.
+Public Function BlendenZeta(ByVal rohrD As Double, ByVal lochD As Double, ByVal cd As Double) As Double
+    Dim beta As Double, a As Double
+    If rohrD <= 0 Or lochD <= 0 Or cd <= 0 Or cd >= 1 Then Err.Raise vbObjectError + 30, , "Blende: positive Durchmesser und 0 < Cd < 1 erforderlich."
+    beta = lochD / rohrD
+    If beta < 0.2 - 0.000000000001 Or beta > 0.75 + 0.000000000001 Then Err.Raise vbObjectError + 31, , "Blende: Modellbereich 0.2 <= d/D <= 0.75."
+    If beta < 0.2 Then beta = 0.2
+    If beta > 0.75 Then beta = 0.75
+    a = Sqr(1 - beta ^ 4 * (1 - cd ^ 2))
+    BlendenZeta = (a / (cd * beta ^ 2) - 1) ^ 2
 End Function

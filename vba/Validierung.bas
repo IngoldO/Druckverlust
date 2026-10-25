@@ -146,6 +146,7 @@ Public Sub ValidierungStarten()
         If code = 0 Then Err.Raise vbObjectError + 101, , "Ungueltige Eingabe akzeptiert, Fall " & i
         count = count + 1
     Next i
+    ErweiterungenValidieren
     MsgBox count & " Rechenkern-Testfaelle bestanden (12 Referenzen, 8 Fehlerfaelle).", vbInformation
     Exit Sub
 Fehler:

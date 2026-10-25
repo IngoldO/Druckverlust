@@ -37,3 +37,16 @@ CASES = [
  ('Nur Einzelwiderstaende',(10,.05,0,0,1000,.001,0,5,0)),
  ('Maximale Rauigkeit',(10,.05,10,.0025,1000,.001,0,0,0)),
 ]
+
+
+def orifice_reference(pipe_d, hole_d, cd):
+    """Independent route: metering differential multiplied by recovery ratio."""
+    if pipe_d <= 0 or hole_d <= 0 or not 0 < cd < 1:
+        raise ValueError('orifice geometry/Cd')
+    beta=hole_d/pipe_d
+    if not .2-1e-12 <= beta <= .75+1e-12:raise ValueError('beta')
+    beta=max(.2,min(.75,beta))
+    tap_zeta=(1-beta**4)/(cd**2*beta**4)
+    root=math.sqrt(1-beta**4*(1-cd**2))
+    recovery=(root-cd*beta**2)/(root+cd*beta**2)
+    return tap_zeta*recovery

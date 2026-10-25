@@ -72,23 +72,31 @@ class WorkbookValidation(unittest.TestCase):
     def test_archive_integrity(self):self.assertIsNone(self.z.testzip())
     def test_sheets_and_named_ranges(self):
         root=self.xml('xl/workbook.xml')
-        self.assertEqual([s.attrib['name'] for s in root.findall('s:sheets/s:sheet',NS)],['Eingabe','Ergebnisse','Armaturendatenbank'])
+        self.assertEqual([s.attrib['name'] for s in root.findall('s:sheets/s:sheet',NS)],['Eingabe','Ergebnisse','Armaturendatenbank','Lochblende','Pumpe','Betriebspunkte'])
         self.assertEqual({n.attrib['name'] for n in root.findall('s:definedNames/s:definedName',NS)},{'DNWerte','ArmaturenTypen'})
     def test_table_contract(self):
         tables=[self.xml(n) for n in self.z.namelist() if n.startswith('xl/tables/')]
-        self.assertEqual({t.attrib['name'] for t in tables},{'tblArmaturen','tblDatenbank'})
-        self.assertEqual({t.attrib['ref'] for t in tables},{'A20:D32','A4:D16'})
+        self.assertEqual({t.attrib['name'] for t in tables},{'tblArmaturen','tblDatenbank','tblPumpe'})
+        self.assertEqual({t.attrib['ref'] for t in tables},{'A20:D32','A4:D16','A20:C26'})
     def test_parameter_cells(self):
         cells={c.attrib['r']:c for c in self.xml('xl/worksheets/sheet1.xml').findall('.//s:c',NS)}
         for i in range(5,17):self.assertIn(f'B{i}',cells)
         self.assertEqual(float(cells['B6'].find('s:v',NS).text),54.5)
+        self.assertEqual(float(cells['G3'].find('s:v',NS).text),10)
+        orifice={c.attrib['r']:c for c in self.xml('xl/worksheets/sheet4.xml').findall('.//s:c',NS)}
+        for address,value in [('B5',0),('B6',50),('B7',54.5),('B8',25),('B9',.61),('B10',1)]:
+            self.assertEqual(float(orifice[address].find('s:v',NS).text),value)
+        pump_table=self.xml('xl/tables/table3.xml')
+        self.assertEqual(pump_table.attrib['ref'],'A20:C26')
+        self.assertIn('G3',(ROOT/'vba/Betriebsoberflaeche.bas').read_text())
+        self.assertIn('ErweiterungenValidieren',(ROOT/'vba/Validierung.bas').read_text())
     def test_chart_three_xy_series(self):
         ns={'c':'http://schemas.openxmlformats.org/drawingml/2006/chart'}
         chart=self.xml('xl/charts/chart1.xml')
         self.assertEqual(len(chart.findall('.//c:scatterChart/c:ser',ns)),3)
     def test_import_files_are_ascii_and_modules(self):
         files=list((ROOT/'vba').glob('*.bas'))
-        self.assertEqual(len(files),4)
+        self.assertEqual(len(files),7)
         for f in files:
             data=f.read_bytes();data.decode('ascii')
             self.assertIn(b'Option Explicit',data)

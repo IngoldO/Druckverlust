@@ -34,6 +34,7 @@ def build():
       '        End Select','        code = Err.Number','        On Error GoTo Fehler',
       '        If code = 0 Then Err.Raise vbObjectError + 101, , "Ungueltige Eingabe akzeptiert, Fall " & i',
       '        count = count + 1','    Next i',
+      '    ErweiterungenValidieren',
       '    MsgBox count & " Rechenkern-Testfaelle bestanden (12 Referenzen, 8 Fehlerfaelle).", vbInformation',
       '    Exit Sub','Fehler:', '    MsgBox "VALIDIERUNG FEHLGESCHLAGEN: " & Err.Description, vbCritical', '    Err.Raise vbObjectError + 102, "Validierung", "Validierung fehlgeschlagen"','End Sub']
     (ROOT/'vba/Validierung.bas').write_text('\n'.join(lines)+'\n')

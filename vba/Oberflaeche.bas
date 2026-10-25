@@ -4,44 +4,31 @@ Option Explicit
 Public Sub SystemkennlinieBerechnen()
     On Error GoTo Fehler
     Dim ws As Worksheet, out As Worksheet, r As Betriebspunkt
-    Dim d As Double, l As Double, eps As Double, h As Double, rho As Double, mu As Double
-    Dim qmin As Double, qmax As Double, punkte As Double, dp As Double, z As Double, q As Double
-    Dim i As Long, n As Long, daten() As Variant, temp As Double, dn As Double, meldung As String
+    Dim a As Anlagendaten, qmin As Double, qmax As Double, punkte As Double, q As Double
+    Dim i As Long, n As Long, daten() As Variant, meldung As String
     Set ws = ThisWorkbook.Worksheets("Eingabe")
     Set out = ThisWorkbook.Worksheets("Ergebnisse")
-    dn = Zahl(ws.Range("B5"), "DN")
-    If Application.CountIf(ThisWorkbook.Names("DNWerte").RefersToRange, dn) <> 1 Then Err.Raise vbObjectError + 23, , "DN nicht in Auswahltabelle."
-    d = Zahl(ws.Range("B6"), "Innendurchmesser") / 1000
-    l = Zahl(ws.Range("B7"), "Laenge")
-    eps = Zahl(ws.Range("B8"), "Rauigkeit") / 1000
-    h = Zahl(ws.Range("B9"), "Hoehendifferenz")
-    rho = Zahl(ws.Range("B10"), "Dichte")
-    mu = Zahl(ws.Range("B11"), "Viskositaet") / 1000
-    If Not IsEmpty(ws.Range("B12").Value) Then
-        temp = Zahl(ws.Range("B12"), "Temperatur")
-        If temp < -273.15 Then Err.Raise vbObjectError + 20, , "Temperatur unter absolutem Nullpunkt."
-    End If
+    a = LeseAnlage()
     qmin = Zahl(ws.Range("B13"), "Q min")
     qmax = Zahl(ws.Range("B14"), "Q max")
     punkte = Zahl(ws.Range("B15"), "Berechnungspunkte")
-    dp = Zahl(ws.Range("B16"), "Behaelterdifferenzdruck")
     If qmin < 0 Or qmax <= qmin Then Err.Raise vbObjectError + 21, , "Erforderlich: 0 <= Q min < Q max."
     If punkte < 2 Or punkte > 10000 Or punkte <> Fix(punkte) Then Err.Raise vbObjectError + 22, , "Punktanzahl muss ganzzahlig zwischen 2 und 10000 sein."
     n = CLng(punkte)
-    z = SummeZeta()
-    ReDim daten(1 To n, 1 To 11)
+    ReDim daten(1 To n, 1 To 12)
     For i = 1 To n
         q = qmin + (qmax - qmin) * (i - 1) / (n - 1)
-        r = BerechnePunkt(q, d, l, eps, rho, mu, h, z, dp)
+        r = Anlagenpunkt(q, a)
         daten(i, 1) = q: daten(i, 2) = r.V: daten(i, 3) = r.re
         daten(i, 4) = r.Lambda: daten(i, 5) = r.RohrBar: daten(i, 6) = r.EinzelBar
         daten(i, 7) = r.HoeheBar: daten(i, 8) = r.BehaelterBar: daten(i, 9) = r.GesamtBar
         daten(i, 10) = r.Regime: daten(i, 11) = r.Hinweis
+        daten(i, 12) = a.ZBlende * a.Rho * r.V ^ 2 / 200000#
     Next i
-    out.Range("A5:K10004").ClearContents
-    out.Range("A5").Resize(n, 11).Value = daten
-    out.Range("A2").Value = "Gueltiger Lauf: " & Format(Now, "yyyy-mm-dd hh:nn:ss") & " | Summe n*zeta = " & Format(z, "0.000")
-    out.Range("B3").Value = "Stoffwerte konstant; ein Durchmesser. Zeta-Naeherungswerte pruefen."
+    out.Range("A5:L10004").ClearContents
+    out.Range("A5").Resize(n, 12).Value = daten
+    out.Range("A2").Value = "Gueltiger Lauf: " & Format(Now, "yyyy-mm-dd hh:nn:ss") & " | Summe n*zeta = " & Format(a.Z, "0.000")
+    out.Range("B3").Value = "Armaturen enthalten aktive Lochblende; Spalte L ist darin enthalten."
     ZeichneKennlinie out, n
     out.Activate
     Exit Sub
@@ -55,7 +42,7 @@ End Sub
 Public Sub ZeichneKennlinie(ByVal ws As Worksheet, ByVal n As Long)
     Dim ch As ChartObject, s As Series, cols As Variant, names As Variant, i As Long
     If ws.ChartObjects.Count = 0 Then
-        Set ch = ws.ChartObjects.Add(ws.Range("M4").Left, ws.Range("M4").Top, 900, 420)
+        Set ch = ws.ChartObjects.Add(ws.Range("N4").Left, ws.Range("N4").Top, 900, 420)
     Else
         Set ch = ws.ChartObjects(1)
     End If
@@ -86,9 +73,9 @@ End Sub
 Public Sub Einrichtung()
     Dim ws As Worksheet, b As Shape, i As Long, namen As Variant, makros As Variant
     Set ws = ThisWorkbook.Worksheets("Eingabe")
-    namen = Array("Systemkennlinie berechnen", "DN-Vorschlag uebernehmen", "Armatur hinzufuegen", "Validierung starten")
-    makros = Array("SystemkennlinieBerechnen", "DNAnwenden", "ArmaturHinzufuegen", "ValidierungStarten")
-    For i = 0 To 3
+    namen = Array("Systemkennlinie berechnen", "DN-Vorschlag uebernehmen", "Armatur hinzufuegen", "Validierung starten", "Einzelpunkt berechnen", "Pumpenbetriebspunkt", "Blenden-DN uebernehmen")
+    makros = Array("SystemkennlinieBerechnen", "DNAnwenden", "ArmaturHinzufuegen", "ValidierungStarten", "EinzelpunktBerechnen", "PumpenbetriebspunktBerechnen", "BlendenDNAnwenden")
+    For i = 0 To UBound(namen)
         On Error Resume Next
         ws.Shapes("dvButton" & i).Delete
         On Error GoTo 0
