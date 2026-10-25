@@ -72,7 +72,7 @@ class WorkbookValidation(unittest.TestCase):
     def test_archive_integrity(self):self.assertIsNone(self.z.testzip())
     def test_sheets_and_named_ranges(self):
         root=self.xml('xl/workbook.xml')
-        self.assertEqual([s.attrib['name'] for s in root.findall('s:sheets/s:sheet',NS)],['Eingabe','Ergebnisse','Armaturendatenbank','Lochblende','Pumpe','Betriebspunkte','KvArmatur','Blende_Standalone','Systembericht'])
+        self.assertEqual([s.attrib['name'] for s in root.findall('s:sheets/s:sheet',NS)],['Eingabe','Ergebnisse','Armaturendatenbank','Lochblende','Pumpe','Betriebspunkte','KvArmatur','Blende_Standalone','Systembericht','Kv_Standalone'])
         self.assertEqual({n.attrib['name'] for n in root.findall('s:definedNames/s:definedName',NS) if not n.attrib['name'].startswith('_xlnm.')},{'DNWerte','ArmaturenTypen'})
     def test_table_contract(self):
         tables=[self.xml(n) for n in self.z.namelist() if n.startswith('xl/tables/')]

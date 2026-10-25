@@ -1,7 +1,7 @@
 """Rebuild the macro-free template. Build dependency: XlsxWriter 3.2.9."""
 from pathlib import Path
 import xlsxwriter
-from report_sheets import build_report_sheets
+from report_sheets import build_report_sheets, build_kv_standalone
 
 ROOT = Path(__file__).resolve().parents[1]
 ARMATUREN = [
@@ -128,9 +128,13 @@ def build():
     kv.data_validation('B7',{'validate':'integer','criteria':'between','minimum':1,'maximum':1000})
     kv.merge_range('A10:F13','Delta p [bar] = n (rho/1000) (Q/Kv)^2. Gilt als Naeherung fuer turbulente, nicht kavitierende Fluessigkeitsstroemung bei konstanter Oeffnung. Keine Viskositaets-, FL-, Kavitation- oder Choked-Flow-Korrektur. Herstellergrenzen pruefen. Der Anteil wird den Einzelwiderstaenden zugerechnet und in Spalte M separat ausgewiesen.',note)
     build_report_sheets(w,DNS)
+    build_kv_standalone(w)
     w.close()
     standalone=xlsxwriter.Workbook(ROOT / "excel" / "Drosselblende_Standalone.xlsx")
     build_report_sheets(standalone,DNS,include_system=False)
     standalone.close()
+    kv_standalone=xlsxwriter.Workbook(ROOT / "excel" / "Kv_Standalone.xlsx")
+    build_kv_standalone(kv_standalone)
+    kv_standalone.close()
     return path
 if __name__ == '__main__':print(build())

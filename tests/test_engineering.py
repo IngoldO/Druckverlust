@@ -72,3 +72,65 @@ class Engineering(unittest.TestCase):
         self.assertEqual(float(cells['B6'].find('s:v',NS).text),10)
         for name in ['Oberflaeche','Betriebsoberflaeche']:
             self.assertIn('a.ZKv * a.Rho', (ROOT/f'vba/{name}.bas').read_text())
+
+class KvStandalone(unittest.TestCase):
+    def setUp(self):
+        self.z=ZipFile(ROOT/'excel/Kv_Standalone.xlsx');self.addCleanup(self.z.close)
+        self.sheet=ET.fromstring(self.z.read('xl/worksheets/sheet1.xml'))
+        self.formulas={c.attrib['r']:c.find('s:f',NS).text for c in self.sheet.findall('.//s:c',NS) if c.find('s:f',NS) is not None}
+    def test_independent_file_and_embedded_sheet_match(self):
+        self.assertIsNone(self.z.testzip())
+        wb=ET.fromstring(self.z.read('xl/workbook.xml'))
+        self.assertEqual([s.attrib['name'] for s in wb.findall('s:sheets/s:sheet',NS)],['Kv_Standalone'])
+        self.assertTrue(all('!' not in f for f in self.formulas.values()))
+        with ZipFile(ROOT/'excel/Druckverlust_Vorlage.xlsx') as full:
+            embedded=ET.fromstring(full.read('xl/worksheets/sheet10.xml'))
+            def contents(sheet,package):
+                strings=ET.fromstring(package.read('xl/sharedStrings.xml'))
+                texts=[''.join(el.itertext()) for el in strings.findall('s:si',NS)]
+                cells={}
+                for c in sheet.findall('.//s:c',NS):
+                    f=c.find('s:f',NS);v=c.find('s:v',NS)
+                    value=v.text if v is not None else None
+                    if c.attrib.get('t')=='s':value=texts[int(value)]
+                    cells[c.attrib['r']]=(f.text if f is not None else None,value)
+                return cells
+            self.assertEqual(contents(embedded,full),contents(self.sheet,self.z))
+    def test_actual_arithmetic_formulas_against_reference(self):
+        # Evaluate only arithmetic expressions from generated XLSX, not Excel functions.
+        import ast
+        import operator
+        ops={ast.Add:operator.add,ast.Sub:operator.sub,ast.Mult:operator.mul,ast.Div:operator.truediv,ast.Pow:operator.pow}
+        def calculate(node,values):
+            if isinstance(node,ast.Constant):return node.value
+            if isinstance(node,ast.Name):return values[node.id]
+            if isinstance(node,ast.BinOp):return ops[type(node.op)](calculate(node.left,values),calculate(node.right,values))
+            raise AssertionError('Unexpected arithmetic formula')
+        for q,kv,rho,n in [(10,10,1000,1),(20,10,800,3),(0,5,1000,2),(1.5,4,1200,1)]:
+            values={'D8':q,'D9':kv,'D10':rho,'D11':n}
+            for address in ['D21','D22','D23','D24']:
+                formula=self.formulas[address]
+                self.assertTrue(formula.startswith('IF($D$16=1,') and formula.endswith(',NA())'))
+                expr=formula[len('IF($D$16=1,'):-len(',NA())')].replace('^','**')
+                values[address]=calculate(ast.parse(expr,mode='eval').body,values)
+            expected=n*rho/1000*(q/kv)**2
+            self.assertAlmostEqual(values['D22'],expected)
+            self.assertAlmostEqual(values['D23'],expected*1e5)
+            self.assertAlmostEqual(values['D24'],expected*1e5/(rho*9.80665))
+    def test_validation_and_documented_inputs(self):
+        check=self.formulas['D16']
+        for condition in ['D8>=0','D9>0','D10>0','D11=INT(D11)','D11<=1000','D12>0','ISNUMBER(D9)','D13>=-273.15']:
+            self.assertIn(condition,check)
+        self.assertTrue(check.startswith('IFERROR('))
+        self.assertIn('D16<>1',self.formulas['A17'])
+    def test_one_page_a4_with_equations(self):
+        setup=self.sheet.find('s:pageSetup',NS)
+        self.assertEqual(setup.attrib['paperSize'],'9')
+        self.assertEqual(setup.attrib['orientation'],'portrait')
+        self.assertEqual(setup.attrib.get('fitToHeight','1'),'1')
+        wb=ET.fromstring(self.z.read('xl/workbook.xml'))
+        self.assertTrue(any('$A$1:$H$48' in el.text for el in wb.findall('s:definedNames/s:definedName',NS)))
+        strings=ET.fromstring(self.z.read('xl/sharedStrings.xml'))
+        text=' '.join(el.text or '' for el in strings.findall('.//s:t',NS))
+        self.assertIn('Δpeinzeln [bar]',text)
+        self.assertIn('ANNAHMEN UND GRENZEN',text)

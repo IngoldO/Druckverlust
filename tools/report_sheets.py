@@ -77,3 +77,46 @@ def build_report_sheets(w, dns, include_system=True):
     r.merge_range('A38:H41','Stationaer, inkompressibel, einphasig, Newtonsch; konstante Stoffwerte. Hauptrohr mit einheitlichem D. Re=2300–4000 unsicher (Maximum aus laminar/Colebrook). Zeta/Cd/Kv angenaehert, Herstellergrenzen pruefen. Kv: konstante Oeffnung, turbulent, nicht kavitierend. Pumpen-H streng fallend, linear interpoliert, keine Extrapolation. Keine NPSH-, Phasen- oder Festigkeitspruefung. Details und Eingabestand im Anhang.',text)
     r.merge_range('A43:H44','Geprueft durch: ____________________  Datum: _____________  Freigabe: ______________',text)
     r.merge_range('A46:H46','ANHANG | vollstaendiger Berechnungsstand',head)
+
+
+def build_kv_standalone(w):
+    """Local Excel formulas; can be copied alone, no VBA or other sheet needed."""
+    title=w.add_format({'bold':True,'font_size':17,'font_color':'#185469','valign':'vcenter'})
+    head=w.add_format({'bold':True,'bg_color':'#185469','font_color':'white'})
+    text=w.add_format({'text_wrap':True,'valign':'vcenter','font_size':10})
+    entry=w.add_format({'bg_color':'#E4F3FC','border':1,'num_format':'0.000'})
+    meta=w.add_format({'bg_color':'#E4F3FC','bottom':1})
+    number=w.add_format({'num_format':'0.000000','bold':True,'font_color':'#185469'})
+    formula=w.add_format({'font_name':'Cambria','font_size':11,'bg_color':'#EDF3F5','text_wrap':True,'valign':'vcenter'})
+    warn=w.add_format({'text_wrap':True,'bg_color':'#FFF3CC','font_size':10,'valign':'vcenter'})
+    s=w.add_worksheet('Kv_Standalone');print_layout(s,48)
+    s.merge_range('A1:H2','Kv-Armatur | Druckverlustberechnung',title)
+    s.write('A3','Projekt',text);s.merge_range('B3:D3','',meta)
+    s.write('A4','Dokument',text);s.merge_range('B4:D4','',meta)
+    s.write('F3','Bearbeiter',text);s.merge_range('G3:H3','',meta)
+    s.write('F4','Revision',text);s.merge_range('G4:H4','',meta)
+    s.merge_range('A6:H6','EINGABEN | unabhaengig von der Systemberechnung',head)
+    inputs=[('Volumenstrom Q',10,'m³/h'),('Kv bei aktueller Oeffnung',10,'m³/h'),('Dichte rho',1000,'kg/m³'),('Anzahl gleicher Armaturen in Serie',1,'—'),('Dyn. Viskositaet (dokumentiert)',1,'mPa·s'),('Temperatur (optional)',20,'°C')]
+    for row,(label,value,unit) in enumerate(inputs,7):
+        s.merge_range(row,0,row,2,label,text);s.merge_range(row,3,row,4,value,entry);s.write(row,5,unit,text)
+    s.merge_range('G8:H13','Kv fuer die gewaehlte Oeffnung aus Herstellerdaten einsetzen. Kvs gilt nur bei voller Oeffnung. Anzahl gilt fuer gleiche Armaturen in Serie, nicht parallel.',warn)
+    for cell in ['D9','D10','D12']:
+        s.data_validation(cell,{'validate':'decimal','criteria':'>','value':0})
+    s.data_validation('D8',{'validate':'decimal','criteria':'>=','value':0})
+    s.data_validation('D11',{'validate':'integer','criteria':'between','minimum':1,'maximum':1000})
+    s.merge_range('A16:C16','Eingaben gueltig (1=ja)',text);s.merge_range('D16:E16','',number)
+    checks=[f'ISNUMBER(D{i})' for i in range(8,13)] + ['D8>=0','D9>0','D10>0','D11>=1','D11<=1000','D11=INT(D11)','D12>0','OR(ISBLANK(D13),AND(ISNUMBER(D13),D13>=-273.15))']
+    s.write_formula('D16','=IFERROR(IF(AND('+','.join(checks)+'),1,0),0)',number,0)
+    s.merge_range('A17:H19','',warn)
+    s.write_formula('A17','=IF(D16<>1,"UNGUELTIG: Eingaben pruefen; Ergebnisse nicht verwendbar.","Kv-Naeherung: turbulent, konstante Oeffnung, nicht kavitierend. Herstellergrenzen pruefen; keine Viskositaetskorrektur.")',warn,'Beim Oeffnen in Excel neu berechnen.')
+    results=[(21,'Druckverlust je Armatur','(D10/1000)*(D8/D9)^2','bar'),(22,'Gesamtdruckverlust in Serie','D11*(D10/1000)*(D8/D9)^2','bar'),(23,'Gesamtdruckverlust','D22*100000','Pa'),(24,'Verlusthoehe der Fluessigkeit','D22*100000/(D10*9.80665)','m')]
+    for row,label,expr,unit in results:
+        s.merge_range(row-1,0,row-1,2,label,text);s.merge_range(row-1,3,row-1,4,'',number)
+        s.write_formula(row-1,3,f'=IF($D$16=1,{expr},NA())',number,'#N/A');s.write(row-1,5,unit,text)
+    s.merge_range('A27:H27','BERECHNUNGSFORMELN | Kv-Definition',head)
+    lines=['ρref = 1000 kg/m³; Kv: Volumenstrom bei Δp = 1 bar fuer Referenzwasser', 'Δpeinzeln [bar] = (ρ/ρref) · (Q/Kv)²', 'Δpgesamt [bar] = n · Δpeinzeln [bar]', 'Δp [Pa] = 100000 · Δp [bar]', 'hVerlust [m] = Δpgesamt [Pa] / (ρ g); g = 9,80665 m/s²', 'Q und Kv in m³/h; ρ in kg/m³; bei Q = 0 gilt Δp = 0']
+    for row,line in enumerate(lines,28):s.merge_range(row-1,0,row-1,7,line,formula);s.set_row(row-1,22)
+    s.merge_range('A35:H35','ANNAHMEN UND GRENZEN',head)
+    s.merge_range('A36:H41','Stationaere, einphasige inkompressible Newtonsche Fluessigkeit; konstante Dichte und Armaturenoeffnung. Einfache Kv-Beziehung fuer turbulente, nicht kavitierende Stroemung. Keine Korrektur fuer Viskositaet, Reynolds-Zahl, FL, Kavitation, Flashing oder Choked Flow. Viskositaet und Temperatur sind nur dokumentiert. Kein Rohr-/Blendenmodell; DN und Lochdurchmesser gehoeren zur separaten Blendenberechnung. Kv-Definition im Kontext IEC 60534-2-1, keine vollstaendige normgerechte Regelventilauslegung.',text)
+    s.merge_range('A43:H45','Ohne Makros und ohne Verknuepfungen zu anderen Blaettern. Ergebnisse aktualisieren sich mit Excel-Formeln. Fuer Engineering-Freigabe Kv, Stoffwerte und Anwendungsgrenzen pruefen. A4 Hochformat, eine Seite.',warn)
+    s.merge_range('A47:H48','Geprueft durch: ____________________  Datum: ____________  Freigabe: ______________',text)

@@ -2,7 +2,7 @@
 
 ## In der Cloud ausgeführt
 
-`python -m unittest discover -s tests -v`: **34 Tests bestanden**.
+`python -m unittest discover -s tests -v`: **38 Tests bestanden**.
 
 Diese prüfen die XLSX-Paketintegrität, die drei Blätter, Tabellen und Namensbereiche, Eingabezellzuordnung, drei XY-Diagrammreihen, importierbare ASCII-Module und Referenzdaten. Numerisch prüfen sie Hagen-Poiseuille im laminaren Fall, einen bekannten glatten Colebrook-Wert, additive Einzelwiderstände, Druckvorzeichen, Q=0 und den Übergangsansatz. Eine Python-Transkription der VBA-Fixpunktiteration wird in **45 Kombinationen** (Re=2300 bis 10⁸, ε/D=0 bis 0,05) gegen eine unabhängige Bisektion direkt in λ geprüft.
 
@@ -82,3 +82,10 @@ Noch in Microsoft Excel zu prüfen:
 - Druckvorschau Bericht: Deckblatt auf Seite 1, vollständiger Anhang ab Seite 2, kein Steuerelement im Druckbereich. Metadaten beim Neuerstellen erhalten. Bei Berechnungsfehler muss die Ungültig-Markierung im Bericht sichtbar sein.
 
 Die Datei-/Druckeinstellungen sind in der Cloud geprüft; Excel-Formelberechnung, VBA-Ausführung und tatsächliches Druckrendering bleiben offen.
+
+
+## Eigenständige Kv-Berechnung
+
+Vier zusätzliche Cloud-Tests prüfen die eigenständige Datei und deren Übereinstimmung mit dem Blatt in der Gesamtmappe, lokale Formelreferenzen, Eingabeprüfungen und A4-Druckeinstellungen. Die tatsächlichen arithmetischen Ergebnisformeln werden aus der XLSX gelesen und über einen eingeschränkten Python-AST-Auswerter gegen Referenzwerte für Wasser, abweichende Dichte, mehrere Armaturen und Q=0 geprüft. Das ist keine Ausführung der Excel-Funktionen IF/IFERROR/ISNUMBER und ersetzt keinen Excel-Test.
+
+Zusätzliche Windows-Excel-Abnahme: `Kv_Standalone.xlsx` ohne Makros öffnen, Q/Kv/Dichte/Anzahl ändern, Ergebnis mit direkter Kv-Referenz vergleichen. Ungültige Zahlen, Kv=0, negative Dichte, nicht ganzzahlige Anzahl sowie Q=0 prüfen. Gleiche Werte im integrierten Blatt müssen gleiche Ergebnisse liefern. Druckvorschau auf eine lesbare A4-Seite mit Formeln, Ergebnissen, Annahmen und Metadaten prüfen. Das Blendenblatt und die separate Blenden-XLSX bleiben unverändert verfügbar.
