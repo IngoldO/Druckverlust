@@ -1,0 +1,213 @@
+{
+  "commit": "e8bd020cdb471f23b4a68f344a5861e660ba5725",
+  "files": {
+    "vba/Betriebsoberflaeche.bas": "96106a4147a3cb7fad730e5d5cf6416d24c88f4e4925635700073c447d1fd850",
+    "vba/Eingaben.bas": "2854b2d08d725de416938e660444b4be050b0e9e404eb346b347594546c6710b",
+    "vba/EngineeringBericht.bas": "b1c658986101f575c96bb011a2def06ef690a27df3d1df757df7382a129d9437",
+    "vba/ErweiterungsTests.bas": "bb1b8911c1e581d4fd290844a15ab46f8f3ea532389bf73abc764604d3542e36",
+    "vba/Hydraulik.bas": "591c7fa9174bcec6071a46df66f4d8cb30d943b42e8c6e43df2fb38965df35af",
+    "vba/Oberflaeche.bas": "49fc818df26b0075994da93c8e085cb1876aa1bc11d884aad36edf47939b5119",
+    "vba/Pumpenmodell.bas": "e0f525d0a47843c2dcabaa0f28d7bb74cc42edd69deec1448878dbb15ece422d",
+    "vba/Validierung.bas": "5afd90a45c7cf4ecca33d45a8f72ca4284e35bc55b7ec23824e7446b5f43c905",
+    "tools/build_extension_tests.py": "d2f8216c01a40e643ee97f2440d911ea6469253e64a4c882cfd9ac5ebc96d4e9",
+    "tools/build_validation.py": "72ca12bb83eac6415e6a9db248f7f704ca0c9e1f896a7edbb09d70d2e5fe82e5",
+    "tools/build_workbook.py": "a6abcb2cbad76d5e206f81ede14dc54c597a89f558b6dd6e2b1d7579a1d07be1",
+    "tools/inventory_v1.py": "e6d20426d009801f8d93762a837e65c08ea854c55aa06bb4ca7b11fdef13b602",
+    "tools/report_sheets.py": "7ca4985a4d6509c405d0ab8565f08803ef9a351bdc2fa96fa2ce793dc6a657e3",
+    "tests/reference.py": "0e113d6b5417b6c6bea24fd37a56361dd696faba1087567f2e725cfb2260ca76",
+    "tests/test_engineering.py": "2ade1dead4a644e8b66fe383a8ed8bfe1e82aad360cda298b9f4a17f7538f4f5",
+    "tests/test_extensions.py": "fd09e66580036fc99e8d5c31af2d203611c36a3b85712d65d182087209a2f69f",
+    "tests/test_validation.py": "ebd89269655b0e333db7944523017fd1bf9d3e37daf63c9d628539ba1364e6d7",
+    "excel/Drosselblende_Standalone.xlsx": "ad58e6153254f1cd20b4579f2196f65a6b375cea5a76910bdd8f1f7d4c9f9428",
+    "excel/Druckverlust_Vorlage.xlsx": "aafa4cd33d6fee7cc2aa585e70330eb964c189b91712ec9c89371382124d3acd",
+    "excel/Kv_Standalone.xlsx": "9e219d39f87a2b5c91e9055f44c9647fa62bf259df71741f22e70c764d6025e6"
+  },
+  "modules": {
+    "vba/Betriebsoberflaeche.bas": [
+      "EinzelpunktBerechnen",
+      "PumpenbetriebspunktBerechnen"
+    ],
+    "vba/Eingaben.bas": [
+      "Zahl",
+      "StandardZeta",
+      "SummeZeta",
+      "DNAnwenden",
+      "ArmaturHinzufuegen",
+      "LeseAnlage",
+      "BlendenDNAnwenden",
+      "LesePumpe"
+    ],
+    "vba/EngineeringBericht.bas": [
+      "BerichtsSchaltflaeche",
+      "SystemberichtErstellen"
+    ],
+    "vba/ErweiterungsTests.bas": [
+      "ErweiterungenValidieren"
+    ],
+    "vba/Hydraulik.bas": [
+      "Reibungsbeiwert",
+      "BerechnePunkt",
+      "BlendenZeta",
+      "KvDruck"
+    ],
+    "vba/Oberflaeche.bas": [
+      "SystemkennlinieBerechnen",
+      "ZeichneKennlinie",
+      "Einrichtung"
+    ],
+    "vba/Pumpenmodell.bas": [
+      "Anlagenpunkt",
+      "PruefePumpendaten",
+      "Pumpendruck",
+      "PumpenSchnittpunkt"
+    ],
+    "vba/Validierung.bas": [
+      "ValidierungStarten"
+    ]
+  },
+  "workbooks": {
+    "excel/Drosselblende_Standalone.xlsx": {
+      "sheets": [
+        "Blende_Standalone"
+      ],
+      "names": [
+        {
+          "name": "_xlnm.Print_Area",
+          "localSheetId": "0",
+          "text": "Blende_Standalone!$A$1:$H$48"
+        }
+      ],
+      "tables": [],
+      "charts": [],
+      "embedded_vba": false
+    },
+    "excel/Druckverlust_Vorlage.xlsx": {
+      "sheets": [
+        "Eingabe",
+        "Ergebnisse",
+        "Armaturendatenbank",
+        "Lochblende",
+        "Pumpe",
+        "Betriebspunkte",
+        "KvArmatur",
+        "Blende_Standalone",
+        "Systembericht",
+        "Kv_Standalone"
+      ],
+      "names": [
+        {
+          "name": "ArmaturenTypen",
+          "text": "'Armaturendatenbank'!$A$5:$A$16"
+        },
+        {
+          "name": "DNWerte",
+          "text": "'Armaturendatenbank'!$F$5:$F$22"
+        },
+        {
+          "name": "_xlnm.Print_Area",
+          "localSheetId": "7",
+          "text": "Blende_Standalone!$A$1:$H$48"
+        },
+        {
+          "name": "_xlnm.Print_Area",
+          "localSheetId": "9",
+          "text": "Kv_Standalone!$A$1:$H$48"
+        },
+        {
+          "name": "_xlnm.Print_Area",
+          "localSheetId": "8",
+          "text": "Systembericht!$A$1:$H$44"
+        }
+      ],
+      "tables": [
+        {
+          "id": "1",
+          "name": "tblArmaturen",
+          "displayName": "tblArmaturen",
+          "ref": "A20:D32",
+          "totalsRowShown": "0"
+        },
+        {
+          "id": "2",
+          "name": "tblDatenbank",
+          "displayName": "tblDatenbank",
+          "ref": "A4:D16",
+          "totalsRowShown": "0"
+        },
+        {
+          "id": "3",
+          "name": "tblPumpe",
+          "displayName": "tblPumpe",
+          "ref": "A20:C26",
+          "totalsRowShown": "0"
+        }
+      ],
+      "charts": [
+        "xl/charts/chart1.xml",
+        "xl/charts/chart2.xml"
+      ],
+      "embedded_vba": false
+    },
+    "excel/Kv_Standalone.xlsx": {
+      "sheets": [
+        "Kv_Standalone"
+      ],
+      "names": [
+        {
+          "name": "_xlnm.Print_Area",
+          "localSheetId": "0",
+          "text": "Kv_Standalone!$A$1:$H$48"
+        }
+      ],
+      "tables": [],
+      "charts": [],
+      "embedded_vba": false
+    }
+  },
+  "python_tests": {
+    "tests/test_engineering.py": [
+      "test_kv_reference_water_and_density",
+      "test_equivalent_zeta_preserves_kv_pressure",
+      "test_standalone_has_no_other_sheet_dependencies",
+      "test_standalone_numeric_example_and_recovery",
+      "test_a4_print_contracts",
+      "test_report_recomputes_inputs_and_copies_chart_data",
+      "test_kv_sheet_and_result_columns",
+      "test_independent_file_and_embedded_sheet_match",
+      "test_actual_arithmetic_formulas_against_reference",
+      "test_validation_and_documented_inputs",
+      "test_one_page_a4_with_equations"
+    ],
+    "tests/test_extensions.py": [
+      "test_orifice_against_pressure_recovery_reference",
+      "test_orifice_invalid_geometry",
+      "test_local_diameter_conversion",
+      "test_pump_interpolation_and_density",
+      "test_no_extrapolation",
+      "test_bad_pump_data",
+      "test_analytic_quadratic_system_intersection",
+      "test_piecewise_pump_intersection",
+      "test_endpoints",
+      "test_no_intersection",
+      "test_discontinuity_does_not_become_false_root",
+      "test_zero_flow_orifice_no_dynamic_loss"
+    ],
+    "tests/test_validation.py": [
+      "test_laminar_hagen_poiseuille",
+      "test_known_smooth_colebrook",
+      "test_iteration_against_independent_bisection",
+      "test_zero_flow_static_only",
+      "test_fittings_are_additive",
+      "test_static_sign_and_vessel_pressure",
+      "test_transition_is_explicit_upper_envelope",
+      "test_reference_fixtures_not_stale",
+      "test_vba_selftests_have_references_and_errors",
+      "test_archive_integrity",
+      "test_sheets_and_named_ranges",
+      "test_table_contract",
+      "test_parameter_cells",
+      "test_chart_three_xy_series",
+      "test_import_files_are_ascii_and_modules"
+    ]
+  }
+}

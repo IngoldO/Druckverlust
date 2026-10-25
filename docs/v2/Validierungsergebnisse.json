@@ -1,0 +1,203 @@
+{
+  "scope": "Python algorithm transcription versus independent nested inversion/nodal reference; NOT VBA execution",
+  "cases": [
+    {
+      "case": "single",
+      "nodes": 2,
+      "edges": 1,
+      "iterations": 1,
+      "max_volume_residual_m3h": 0,
+      "max_mass_residual_kgs": 0.0,
+      "max_energy_residual_bar": 1.4341097753778342e-12,
+      "max_reference_pressure_error_bar": 0.0,
+      "max_reference_flow_error_m3h": 7.919620514940107e-11
+    },
+    {
+      "case": "series",
+      "nodes": 3,
+      "edges": 2,
+      "iterations": 1,
+      "max_volume_residual_m3h": 0,
+      "max_mass_residual_kgs": 0.0,
+      "max_energy_residual_bar": 6.455079526457297e-13,
+      "max_reference_pressure_error_bar": 2.389199948993337e-13,
+      "max_reference_flow_error_m3h": 2.2453039427716703e-11
+    },
+    {
+      "case": "parallel_identical",
+      "nodes": 2,
+      "edges": 2,
+      "iterations": 1,
+      "max_volume_residual_m3h": 0,
+      "max_mass_residual_kgs": 0.0,
+      "max_energy_residual_bar": 1.4341097753778342e-12,
+      "max_reference_pressure_error_bar": 0.0,
+      "max_reference_flow_error_m3h": 7.919620514940107e-11
+    },
+    {
+      "case": "parallel_different",
+      "nodes": 2,
+      "edges": 2,
+      "iterations": 1,
+      "max_volume_residual_m3h": 0,
+      "max_mass_residual_kgs": 0.0,
+      "max_energy_residual_bar": 1.4341097753778342e-12,
+      "max_reference_pressure_error_bar": 0.0,
+      "max_reference_flow_error_m3h": 7.919620514940107e-11
+    },
+    {
+      "case": "parallel_three",
+      "nodes": 2,
+      "edges": 3,
+      "iterations": 1,
+      "max_volume_residual_m3h": 0,
+      "max_mass_residual_kgs": 0.0,
+      "max_energy_residual_bar": 1.4341097753778342e-12,
+      "max_reference_pressure_error_bar": 0.0,
+      "max_reference_flow_error_m3h": 7.919620514940107e-11
+    },
+    {
+      "case": "collector",
+      "nodes": 6,
+      "edges": 6,
+      "iterations": 1,
+      "max_volume_residual_m3h": 5.291878046875809e-13,
+      "max_mass_residual_kgs": 1.469966124132169e-13,
+      "max_energy_residual_bar": 3.5673460713203653e-13,
+      "max_reference_pressure_error_bar": 1.8118839761882555e-13,
+      "max_reference_flow_error_m3h": 9.694467451026867e-12
+    },
+    {
+      "case": "consumers",
+      "nodes": 4,
+      "edges": 3,
+      "iterations": 1,
+      "max_volume_residual_m3h": 5.291600491119652e-13,
+      "max_mass_residual_kgs": 1.4698890253110145e-13,
+      "max_energy_residual_bar": 5.757946203166497e-13,
+      "max_reference_pressure_error_bar": 2.042810365310288e-13,
+      "max_reference_flow_error_m3h": 2.1247004156066396e-11
+    },
+    {
+      "case": "loop",
+      "nodes": 4,
+      "edges": 5,
+      "iterations": 1,
+      "max_volume_residual_m3h": 5.291600491119652e-13,
+      "max_mass_residual_kgs": 1.4698890253110145e-13,
+      "max_energy_residual_bar": 5.659882285069529e-13,
+      "max_reference_pressure_error_bar": 2.0472512574087887e-13,
+      "max_reference_flow_error_m3h": 1.995009712985052e-11
+    },
+    {
+      "case": "orifice",
+      "nodes": 2,
+      "edges": 1,
+      "iterations": 3,
+      "max_volume_residual_m3h": 0,
+      "max_mass_residual_kgs": 0.0,
+      "max_energy_residual_bar": 7.635851076437383e-09,
+      "max_reference_pressure_error_bar": 0.0,
+      "max_reference_flow_error_m3h": 3.216039492492939e-07
+    },
+    {
+      "case": "kv",
+      "nodes": 2,
+      "edges": 1,
+      "iterations": 4,
+      "max_volume_residual_m3h": 0,
+      "max_mass_residual_kgs": 0.0,
+      "max_energy_residual_bar": 2.8913538230312952e-11,
+      "max_reference_pressure_error_bar": 0.0,
+      "max_reference_flow_error_m3h": 8.609530866010573e-10
+    },
+    {
+      "case": "zero",
+      "nodes": 2,
+      "edges": 1,
+      "iterations": 1,
+      "max_volume_residual_m3h": 0,
+      "max_mass_residual_kgs": 0.0,
+      "max_energy_residual_bar": 6.339974773399242e-14,
+      "max_reference_pressure_error_bar": 0.0,
+      "max_reference_flow_error_m3h": 3.5011438193066624e-12
+    },
+    {
+      "case": "reverse",
+      "nodes": 2,
+      "edges": 1,
+      "iterations": 1,
+      "max_volume_residual_m3h": 0,
+      "max_mass_residual_kgs": 0.0,
+      "max_energy_residual_bar": 8.297633413700822e-13,
+      "max_reference_pressure_error_bar": 0.0,
+      "max_reference_flow_error_m3h": 4.582245693995901e-11
+    },
+    {
+      "case": "elevation",
+      "nodes": 2,
+      "edges": 1,
+      "iterations": 1,
+      "max_volume_residual_m3h": 0,
+      "max_mass_residual_kgs": 0.0,
+      "max_energy_residual_bar": 6.339980139551665e-14,
+      "max_reference_pressure_error_bar": 0.0,
+      "max_reference_flow_error_m3h": 3.5072778015177164e-12
+    },
+    {
+      "case": "mesh20x30",
+      "nodes": 20,
+      "edges": 30,
+      "iterations": 1,
+      "max_volume_residual_m3h": 5.292433158388121e-13,
+      "max_mass_residual_kgs": 1.4701203217744782e-13,
+      "max_energy_residual_bar": 4.65391961079753e-12,
+      "max_reference_pressure_error_bar": 4.080735749312225e-12,
+      "max_reference_flow_error_m3h": 1.1540712829827271e-10
+    },
+    {
+      "case": "check_closed",
+      "nodes": 2,
+      "edges": 1,
+      "iterations": 1,
+      "max_volume_residual_m3h": 0,
+      "max_mass_residual_kgs": 0.0,
+      "max_energy_residual_bar": 0.0,
+      "max_reference_pressure_error_bar": 0.0,
+      "max_reference_flow_error_m3h": 5.291461713241574e-13
+    },
+    {
+      "case": "check_open",
+      "nodes": 2,
+      "edges": 1,
+      "iterations": 3,
+      "max_volume_residual_m3h": 0,
+      "max_mass_residual_kgs": 0.0,
+      "max_energy_residual_bar": 8.500145032286355e-16,
+      "max_reference_pressure_error_bar": 0.0,
+      "max_reference_flow_error_m3h": 4.6407322429331543e-14
+    },
+    {
+      "case": "inactive",
+      "nodes": 2,
+      "edges": 2,
+      "iterations": 1,
+      "max_volume_residual_m3h": 0,
+      "max_mass_residual_kgs": 0.0,
+      "max_energy_residual_bar": 1.4341097753778342e-12,
+      "max_reference_pressure_error_bar": 0.0,
+      "max_reference_flow_error_m3h": 7.919620514940107e-11
+    },
+    {
+      "case": "turbulent",
+      "nodes": 2,
+      "edges": 1,
+      "iterations": 4,
+      "max_volume_residual_m3h": 0,
+      "max_mass_residual_kgs": 0.0,
+      "max_energy_residual_bar": 9.951410806507965e-10,
+      "max_reference_pressure_error_bar": 0.0,
+      "max_reference_flow_error_m3h": 7.934113810392773e-09
+    }
+  ]
+}

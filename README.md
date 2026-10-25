@@ -1,5 +1,8 @@
 # Druckverlust – Excel/VBA-Systemkennlinie
 
+**V2-Entwicklung auf `develop/network-v2`:** Die Bestandsaufnahme sowie Netzwerkdatenmodell und Solver (Phasen 1–3) sind separat ergänzt. Einstieg: [Bestandsaufnahme](docs/v2/Bestandsaufnahme.md), [Installation und Phasenstand](docs/v2/Netzwerk.md), [Validierung](docs/v2/Validierung.md). Neue Vorlage: `excel/Druckverlust_Netzwerk_V2.xlsx`; neue Module: `vba/network/`. Die nachfolgend beschriebene bisherige Version einschließlich aller acht Module, Standalone-Dateien und Tests bleibt unverändert. Schemagrafik, Netzwerk-Systemkennlinie und Netzwerkbericht sind noch nicht Teil dieses Entwicklungsstands.
+
+
 Version 1.2 für inkompressible, einphasige Newtonsche Flüssigkeiten mit konstanten Stoffwerten und einem einheitlichen Hauptrohr-Innendurchmesser, ergänzt um eine Lochblende und eine Pumpenkennlinie. Berechnet Darcy-Weisbach-Rohrreibung, Einzelwiderstände, geodätische Höhe und einen konstanten Behälterdifferenzdruck.
 
 ## Installation in Microsoft Excel für Windows
