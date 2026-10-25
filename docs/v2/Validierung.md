@@ -1,4 +1,4 @@
-# V2 – Validierung der Phasen 1–3
+# V2 – Validierung von Solver, Kennlinien und Engineering-Funktionen
 
 ## Ausgeführt
 
@@ -6,15 +6,16 @@
 python -m pip install -r requirements-build.txt -r requirements-network-test.txt
 python tools/build_network_workbook.py
 python tools/build_network_validation.py
+python tools/build_network_feature_tests.py
 python tools/validate_network.py
 python -m unittest discover -s tests -v
 ```
 
 Alle Befehle im Repository-Verzeichnis ausführen. Installation ist nur für Entwicklungsprüfungen/Generierung nötig; Excel/VBA benötigt weder Python noch NumPy/SciPy.
 
-Ergebnis: **57 Python-Tests bestanden**, davon alle 38 bisherigen Tests unverändert und 19 zusätzliche Tests. Die Regression prüft zusätzlich unveränderte SHA-256-Werte sämtlicher inventarisierter V1-Module, Generatoren, Tests und Arbeitsmappen. In der V2-Vorlage stimmen die Zellwerte/Formeln/Formatindizes der zehn alten Blätter sowie die bisherigen Tabellen- und Diagramm-XMLs mit V1 überein.
+Ergebnis: **67 Python-Tests bestanden**, davon alle 38 bisherigen Tests unverändert und 29 zusätzliche Tests. Die Regression prüft zusätzlich unveränderte SHA-256-Werte sämtlicher inventarisierter V1-Module, Generatoren, Tests und Arbeitsmappen. In der V2-Vorlage stimmen die Zellwerte/Formeln/Formatindizes der zehn alten Blätter sowie die bisherigen Tabellen- und Diagramm-XMLs mit V1 überein.
 
-**Kein VBA wurde hier kompiliert oder ausgeführt.** Die bestehenden 20+37 VBA-Fälle sind bytegleich erhalten. `NetzwerkValidieren` ergänzt **25 vorbereitete tatsächliche VBA-Fälle**, insgesamt damit 82 VBA-Testfälle zur späteren Windows-Abnahme. Python-Algorithmusprüfungen ersetzen diese Ausführung nicht.
+**Kein VBA wurde hier kompiliert oder ausgeführt.** Die bestehenden 20+37 VBA-Fälle sind bytegleich erhalten. `NetzwerkValidieren` ergänzt **25 Netzwerk-Kernfälle und 8 Funktionstests**, insgesamt damit 90 vorbereitete tatsächliche VBA-Testfälle zur späteren Windows-Abnahme. Python-Algorithmusprüfungen ersetzen diese Ausführung nicht.
 
 ## Unabhängige Referenz
 
@@ -68,13 +69,33 @@ Genaue Werte pro Fall: `Validierungsergebnisse.json`, reproduzierbar mit `tools/
 
 ## Noch erforderliche Windows-Excel-Abnahme
 
-- V2 als neue XLSM speichern, acht alte und fünf neue Module importieren und vollständig kompilieren.
+- V2 als neue XLSM speichern, acht alte und zehn Netzwerkmodule importieren und vollständig kompilieren.
 - Alle bisherigen 57 VBA-Fälle ausführen; bestehende Einzelrohr-, Pumpen-, Berichts- und Standalone-Workflows gemäß V1-Anleitung prüfen.
-- `NetzwerkValidieren` ausführen: 25 Netzwerkfälle erwartet, einschließlich 20/30-Netz.
+- `NetzwerkValidieren` ausführen: 25 Kern- und 8 Funktionstests erwartet, einschließlich 20/30-Netz.
 - Tabellen erweitern, Zeilen entfernen, Dropdowns und unbekannte/duplizierte IDs prüfen; befüllt berechnete Drücke niemals in Eingaben zurückschreiben.
 - Aktive/inaktive Leitungen, ζ=0, individuelle Kv-/Blendenwerte, Strömungsumkehr und gesperrte Rückschlagventile mit Ergebnisresiduen vergleichen.
 - Solverfehler provozieren: alte Netzwerkergebnisse müssen verschwinden und UNGUELTIG sichtbar sein. Modus-A-Eingaben bleiben erhalten.
 - Gleiches Netz in beiden Modi aufsetzen und Einzelrohr-Vergleich durchführen; auf bar(a) gegenüber bisheriger Differenzdruckeingabe achten.
 - Pumpenwerte ändern und Netzwerk neu lösen; niemals außerhalb der eingegebenen Q-Grenzen rechnen.
 
-Automatische Netzwerkschemagrafik, Netzwerk-Systemkennlinie, Netzwerkbericht und deren End-to-End-Abnahme sind für diesen Phasenstand noch offen. Eine externe V4-XLSM benötigt eine eigene Bestandsaufnahme, sobald sie tatsächlich vorliegt.
+Schemagrafik, Netzwerk-Systemkennlinie und Netzwerkbericht sind inzwischen implementiert. Ihre Makroausführung und das Druckrendering benötigen weiterhin die nachfolgende Windows-Abnahme. Eine externe V4-XLSM benötigt eine eigene Bestandsaufnahme, sobald sie tatsächlich vorliegt.
+
+## Zusätzliche Prüfungen für die vervollständigten Funktionen
+
+Zehn zusätzliche Cloud-Tests prüfen analytischen Portdruck einer Reihenschaltung einschließlich Q=0, unveränderte Eingabedaten, Q-abhängige Verteilung in unterschiedlichen Parallelzweigen gegen das unabhängige Verfahren, erforderliche Pumpen-dp bei Q=0/10/50, eine geschlossene Umlaufschaltung mit Pumpe, Übereinstimmung von Systemkurve und gekoppeltem Herstellerbetriebspunkt, unzureichende Randbedingungen und eine nicht eindeutige Nullstrom-Pumpenkennlinie mit Rückschlagventil. Zusätzlich werden die neuen Arbeitsblätter, Setupfelder, A4-Querformat, Shape-Präfixe, Vorzeichenpfeile und frische Berichtsdaten strukturell geprüft.
+
+Die tatsächlichen VBA-Funktionsprüfungen werden mit `tools/build_network_feature_tests.py` erzeugt. `NetzwerkFunktionenValidieren` enthält acht Fälle mit analytischen Referenzen und Fehlerprüfungen. `NetzwerkValidieren` startet diese zusätzlich zu den 25 bisherigen Netzwerkfällen. Alle alten V1-Module/-Prüfungen bleiben bytegleich. Die Python-Tests prüfen weiterhin kein Excel-Rendering und führen kein VBA aus.
+
+Erweiterte Excel-Abnahme:
+
+1. Neue V2-Vorlage als XLSM speichern; acht V1- plus zehn Netzwerkmodule importieren, kompilieren, `Einrichtung` und `NetzwerkEinrichtung` ausführen. Alle 90 vorbereiteten VBA-Fälle ausführen (20+37+25+8).
+2. Modus A einschließlich Systembericht und beide Standalone-Blätter wie bisher prüfen.
+3. Netzwerk rechnen: Knotendrücke, Teilströme, Richtungen, Pumpensymbol und farbige Verteiler/Sammler im Schema prüfen; bei negativem Q muss der Pfeil umkehren. Fremdes Shape anlegen, neu berechnen: es darf nicht gelöscht werden.
+4. Knoten verschieben, Positionen explizit speichern, neu rechnen: Positionen müssen erhalten bleiben. X/Y gemeinsam leeren: automatische Anordnung. Knoten umsortieren: Speichern eines alten Schemas muss abgelehnt werden.
+5. Q-Sweep am Einspeiseport: Bilanz pro Punkt prüfen; Verteilung in parallelen Leitungen darf neu berechnet werden. Originale Druck-/Flusseingaben dürfen nicht überschrieben werden.
+6. Pumpe aktivieren, Druckknoten als Einspeisung wählen: Systemkurve muss erforderliche Pumpen-dp zeigen; Herstellerkurve nur im gültigen Bereich. Betriebspunkt mit direkter Netzwerkrechnung vergleichen. Falschen Port, fehlenden Druckanker und Q=0 mit Pumpen-Rückschlagventil kontrolliert ablehnen.
+7. Projekt, Dokument, Bearbeiter und Revision im Bericht eintragen. Bericht zweimal erstellen, Eingaben dazwischen ändern: Metadaten erhalten, numerische Daten und Diagramme frisch. Druckvorschau: vollständiges Schema, lesbare mehrseitige A4-Querformat-Ausgabe und vollständiger Anhang. Große Schemen ggf. separat vergrößert beilegen.
+8. Ungültige Kennlinie bei weiterhin gültigem Betriebspunkt erzeugen: Bericht muss die fehlende Kennlinie ausdrücklich begründen. Ungültigen Netzwerkbetriebspunkt erzeugen: keine alten Zahlen/Shapes als gültig stehen lassen.
+9. Speichern, schließen, ohne Netzwerkverbindung erneut öffnen und alle Modi rechnen.
+
+**Offener Rest:** vollständige VBA-Kompilierung/Ausführung, visuelle Prüfung und Druckabnahme in Microsoft Excel für Windows. Diese Prüfungen können in der vorhandenen Linux-Cloud nicht durchgeführt werden und sind nicht als bestanden ausgewiesen.

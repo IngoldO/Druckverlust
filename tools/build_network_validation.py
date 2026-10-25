@@ -67,6 +67,7 @@ def build():
     '    If r.Erfolg Then NetzFehler "Ideale widerstandslose Leitung akzeptiert."','    count = count + 1',
     '    NetzArmaturAddieren e(1), "Zeta", "Frei definierbarer Einzelwiderstand", 1, 1000, 0',
     '    Nah e(1).Zeta, 0, "Expliziter Nullwert bleibt gueltig"','    count = count + 1',
+    '    NetzwerkFunktionenValidieren',
     '    MsgBox count & " Netzwerk-Testfaelle bestanden.", vbInformation','    Exit Sub',
     'Fehler:','    MsgBox "NETZVALIDIERUNG FEHLGESCHLAGEN: " & Err.Description, vbCritical',
     '    Err.Raise vbObjectError + 250, "NetzValidierung", "Validierung fehlgeschlagen"','End Sub']

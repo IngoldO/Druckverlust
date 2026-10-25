@@ -57,7 +57,7 @@ Private Sub Gauss(ByRef a() As Double, ByRef b() As Double, ByRef dx() As Double
     Next i
 End Sub
 
-Private Sub Residuum(ByRef k() As NetzKnoten, ByRef e() As NetzLeitung, ByRef im() As Long, ByRef ip() As Long, ByVal nf As Long, ByRef x() As Double, ByVal qs As Double, ByVal ps As Double, ByVal rho As Double, ByVal mu As Double, ByRef pq() As Double, ByRef ph() As Double, ByVal tq As Double, ByVal tp As Double, ByRef f() As Double)
+Private Sub Residuum(ByRef k() As NetzKnoten, ByRef e() As NetzLeitung, ByRef im() As Long, ByRef ip() As Long, ByVal nf As Long, ByVal m As Long, ByVal festQ As Double, ByRef x() As Double, ByVal qs As Double, ByVal ps As Double, ByVal rho As Double, ByVal mu As Double, ByRef pq() As Double, ByRef ph() As Double, ByVal tq As Double, ByVal tp As Double, ByRef f() As Double)
     Dim i As Long, a As Long, b As Long, q As Double, drive As Double, loss As Double
     Dim p() As Double, bal() As Double, eq As Double
     ReDim f(1 To UBound(x)): ReDim p(1 To UBound(k)): ReDim bal(1 To UBound(k))
@@ -70,7 +70,10 @@ Private Sub Residuum(ByRef k() As NetzKnoten, ByRef e() As NetzLeitung, ByRef im
             a = e(i).Von: b = e(i).Nach: q = x(im(i)) * qs
             bal(a) = bal(a) - q: bal(b) = bal(b) + q
             drive = p(a) - p(b) + rho * G * (k(a).Hoehe - k(b).Hoehe) / 100000#
-            If e(i).Pumpe Then drive = drive + Pumpendruck(q, pq, ph, rho)
+            If e(i).Pumpe Then
+                If festQ >= 0 Then drive = drive + x(UBound(x)) * ps Else drive = drive + Pumpendruck(q, pq, ph, rho)
+                If festQ >= 0 Then f(UBound(x)) = (q - festQ) / tq
+            End If
             loss = NetzVerlust(q, e(i), rho, mu)
             eq = (loss - drive) / tp
             If e(i).Rueckschlag Then
@@ -81,11 +84,11 @@ Private Sub Residuum(ByRef k() As NetzKnoten, ByRef e() As NetzLeitung, ByRef im
         End If
     Next i
     For i = 1 To UBound(k)
-        If ip(i) > 0 Then f(ip(i) - (UBound(x) - nf)) = bal(i) / tq
+        If ip(i) > 0 Then f(ip(i) - m) = bal(i) / tq
     Next i
 End Sub
 
-Public Sub NetzLoesen(ByRef k() As NetzKnoten, ByRef e() As NetzLeitung, ByVal rho As Double, ByVal mu As Double, ByRef pq() As Double, ByRef ph() As Double, ByRef aus As NetzResultat, Optional ByVal maxIter As Long = 100, Optional ByVal tolQ As Double = 0.000001, Optional ByVal tolP As Double = 0.00000001)
+Public Sub NetzLoesen(ByRef k() As NetzKnoten, ByRef e() As NetzLeitung, ByVal rho As Double, ByVal mu As Double, ByRef pq() As Double, ByRef ph() As Double, ByRef aus As NetzResultat, Optional ByVal maxIter As Long = 100, Optional ByVal tolQ As Double = 0.000001, Optional ByVal tolP As Double = 0.00000001, Optional ByVal festPumpQ As Double = -1)
     On Error GoTo Fehler
     Dim im() As Long, ip() As Long, x() As Double, trial() As Double, f() As Double, ft() As Double
     Dim jac() As Double, rhs() As Double, dx() As Double, tmp As NetzResultat
@@ -115,33 +118,42 @@ Public Sub NetzLoesen(ByRef k() As NetzKnoten, ByRef e() As NetzLeitung, ByVal r
             nf = nf + 1: ip(i) = m + nf
         End If
     Next i
+    If festPumpQ < 0 And festPumpQ <> -1 Then NetzFehler "Pumpen-Q-Vorgabe muss >=0 oder -1 (Betriebspunkt) sein."
+    If festPumpQ >= 0 And pump = 0 Then NetzFehler "Pumpen-Q-Vorgabe ohne aktive Pumpe."
     meanHead = meanHead / count: dimn = m + nf
+    If festPumpQ >= 0 Then dimn = dimn + 1
     ReDim x(1 To dimn): ReDim trial(1 To dimn)
-    If pump > 0 Then
+    If pump > 0 And festPumpQ < 0 Then
         PruefePumpendaten pq, ph, rho
         If pq(LBound(pq)) <> 0 Then NetzFehler "Netzpumpe: Kennlinie muss bei Q=0 beginnen; keine Extrapolation."
     End If
     For i = 1 To UBound(e)
         If im(i) > 0 Then x(im(i)) = 0.1
     Next i
-    If pump > 0 Then x(im(pump)) = (pq(LBound(pq)) + pq(UBound(pq))) / (2 * qs)
+    If pump > 0 Then
+        If festPumpQ >= 0 Then
+            x(im(pump)) = festPumpQ / qs: x(dimn) = 1
+        Else
+            x(im(pump)) = (pq(LBound(pq)) + pq(UBound(pq))) / (2 * qs)
+        End If
+    End If
     For i = 1 To UBound(k)
         If ip(i) > 0 Then x(ip(i)) = (meanHead - rho * G * k(i).Hoehe / 100000#) / ps
     Next i
     For it = 0 To maxIter
-        Residuum k, e, im, ip, nf, x, qs, ps, rho, mu, pq, ph, tolQ, tolP, f
+        Residuum k, e, im, ip, nf, m, festPumpQ, x, qs, ps, rho, mu, pq, ph, tolQ, tolP, f
         merit = Maximum(f)
         If merit <= 1 Then Exit For
         If it = maxIter Then NetzFehler "Keine Konvergenz nach " & maxIter & " Iterationen. Keine gueltigen Resultate."
         ReDim jac(1 To dimn, 1 To dimn): ReDim rhs(1 To dimn)
         For j = 1 To dimn
             old = x(j): step = 0.000001 * (1 + Abs(old))
-            If pump > 0 Then
+            If pump > 0 And festPumpQ < 0 Then
                 If j = im(pump) And (old + step) * qs > pq(UBound(pq)) Then step = -step
                 If j = im(pump) And (old + step) * qs < 0 Then step = (pq(UBound(pq)) / qs - old) / 2
             End If
             x(j) = old + step
-            Residuum k, e, im, ip, nf, x, qs, ps, rho, mu, pq, ph, tolQ, tolP, ft
+            Residuum k, e, im, ip, nf, m, festPumpQ, x, qs, ps, rho, mu, pq, ph, tolQ, tolP, ft
             x(j) = old
             For i = 1 To dimn
                 jac(i, j) = (ft(i) - f(i)) / step
@@ -157,12 +169,12 @@ Public Sub NetzLoesen(ByRef k() As NetzKnoten, ByRef e() As NetzLeitung, ByVal r
                 trial(i) = x(i) + alpha * dx(i)
             Next i
             feasible = True
-            If pump > 0 Then
+            If pump > 0 And festPumpQ < 0 Then
                 q = trial(im(pump)) * qs
                 feasible = (q >= 0 And q <= pq(UBound(pq)))
             End If
             If feasible Then
-                Residuum k, e, im, ip, nf, trial, qs, ps, rho, mu, pq, ph, tolQ, tolP, ft
+                Residuum k, e, im, ip, nf, m, festPumpQ, trial, qs, ps, rho, mu, pq, ph, tolQ, tolP, ft
                 If Maximum(ft) < merit * (1 - 0.0001 * alpha) Or Maximum(ft) <= 1 Then
                     accepted = True: Exit For
                 End If
@@ -187,7 +199,11 @@ Public Sub NetzLoesen(ByRef k() As NetzKnoten, ByRef e() As NetzLeitung, ByVal r
             tmp.Bilanz(e(i).Von) = tmp.Bilanz(e(i).Von) - q
             tmp.Bilanz(e(i).Nach) = tmp.Bilanz(e(i).Nach) + q
             drive = tmp.Druck(e(i).Von) - tmp.Druck(e(i).Nach) + rho * G * (k(e(i).Von).Hoehe - k(e(i).Nach).Hoehe) / 100000#
-            If e(i).Pumpe Then drive = drive + Pumpendruck(q, pq, ph, rho)
+            If e(i).Pumpe Then
+                If festPumpQ >= 0 Then tmp.PumpenDruck = x(dimn) * ps Else tmp.PumpenDruck = Pumpendruck(q, pq, ph, rho)
+                tmp.PumpenQ = q
+                drive = drive + tmp.PumpenDruck
+            End If
             energy = NetzVerlust(q, e(i), rho, mu) - drive
             If e(i).Rueckschlag And Abs(q) <= tolQ Then
                 If energy > 0 Then energy = 0 ' closed valve supports reverse pressure

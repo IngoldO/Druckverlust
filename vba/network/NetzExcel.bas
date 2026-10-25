@@ -45,6 +45,8 @@ Public Sub NetzwerkEinlesen(ByRef k() As NetzKnoten, ByRef e() As NetzLeitung, B
         If k(i).Typ = "Behaelter" Or k(i).Typ = "Offener Auslass" Then
             If Not k(i).DruckFest Then NetzFehler "Behaelter/offener Auslass benoetigt expliziten Absolutdruck."
         End If
+        If IsEmpty(r.Cells(1, 7).Value) Xor IsEmpty(r.Cells(1, 8).Value) Then NetzFehler "Manuelle Position: X und Y gemeinsam eingeben."
+        k(i).PositionManuell = Not IsEmpty(r.Cells(1, 7).Value)
         If Not IsEmpty(r.Cells(1, 7).Value) Then k(i).X = Zahl(r.Cells(1, 7), "Position X")
         If Not IsEmpty(r.Cells(1, 8).Value) Then k(i).Y = Zahl(r.Cells(1, 8), "Position Y")
     Next lr
@@ -145,6 +147,12 @@ Public Sub NetzwerkBerechnen()
             ws.Cells(row + i, 1).Value = e(i).ID: ws.Cells(row + i, 14).Value = "INAKTIV"
         End If
     Next i
+    NetzKennzahlen ws, k, e, r, rho, mu
+    With ThisWorkbook.Worksheets("Netzwerk_Diagramm")
+        NetzSchemaZeichnen ThisWorkbook.Worksheets("Netzwerk_Diagramm"), k, e, r
+        .Range("A2").Value = "BERECHNET: " & Format(Now, "yyyy-mm-dd hh:nn:ss") & "; Pfeile zeigen tatsaechliche Stroemungsrichtung."
+    End With
+    ws.Range("A2").Value = ws.Range("A2").Value & "; " & Format(Now, "yyyy-mm-dd hh:nn:ss")
     ws.Activate
     Exit Sub
 Fehler:
@@ -152,5 +160,7 @@ Fehler:
     On Error Resume Next
     ws.Cells.ClearContents
     ws.Range("A2").Value = "UNGUELTIG: " & msg
+    NetzShapesLoeschen ThisWorkbook.Worksheets("Netzwerk_Diagramm")
+    ThisWorkbook.Worksheets("Netzwerk_Diagramm").Range("A2").Value = "UNGUELTIG: " & msg
     MsgBox msg, vbExclamation, "Netzwerk"
 End Sub

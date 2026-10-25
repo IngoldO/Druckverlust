@@ -37,4 +37,4 @@ Die bisherigen BAS-Dateien, Tests, Generatoren und drei Arbeitsmappen bleiben **
 
 `Druckverlust_Netzwerk_V2.xlsx` wird mit einem separaten Generator erzeugt. Dieser ruft den ursprünglichen Generator nur mit einem temporären Ausgabeverzeichnis auf und ergänzt neue Blätter vor dem Schließen. Alte Dateien werden nicht neu gespeichert. Tests vergleichen Zellwerte/Formeln/Formatindizes sowie die bisherigen Diagramm- und Tabellen-XMLs der neuen Vorlage mit V1.
 
-Phasenstand und Anleitungen: [Netzwerk.md](Netzwerk.md). Dies ist die zunächst beauftragte Implementierung der Phasen 1–3 mit einem grundlegenden Excel-Ein-/Ausgabeadapter. Ein vollständig abgenommener V2-Netzwerksimulator mit Schemagrafik und Netzwerkbericht wird damit noch nicht behauptet.
+Phasenstand und Anleitungen: [Netzwerk.md](Netzwerk.md). Die Bestandsaufnahme dokumentiert den anfänglichen Phasenstand. Der inzwischen ergänzte Funktionsumfang steht in Netzwerk.md; die vollständige Windows-Excel-Abnahme wird weiterhin nicht behauptet.

@@ -35,14 +35,14 @@ class NetworkRegression(unittest.TestCase):
         with ZipFile(ROOT/'excel/Druckverlust_Netzwerk_V2.xlsx') as z:
             wb=E.fromstring(z.read('xl/workbook.xml'))
             names=[s.attrib['name'] for s in wb.findall('s:sheets/s:sheet',NS)]
-            self.assertEqual(names[-6:],['Netzwerk_Setup','Netzwerk_Knoten','Netzwerk_Leitungen','Netzwerk_Armaturen','Netzwerk_Pumpe','Netzwerk_Ergebnisse'])
+            self.assertEqual(names[-9:],['Netzwerk_Setup','Netzwerk_Knoten','Netzwerk_Leitungen','Netzwerk_Armaturen','Netzwerk_Pumpe','Netzwerk_Ergebnisse','Netzwerk_Diagramm','Netzwerk_Kennlinie','Netzwerk_Bericht'])
             tables=[E.fromstring(z.read(n)).attrib['name'] for n in z.namelist() if n.startswith('xl/tables/')]
             self.assertTrue({'tblNetzKnoten','tblNetzLeitungen','tblNetzArmaturen','tblNetzPumpe'}.issubset(tables))
             defined={n.attrib['name']:n.text for n in wb.findall('s:definedNames/s:definedName',NS)}
             self.assertEqual(defined['NetzKnotenIDs'],'tblNetzKnoten[ID]')
     def test_new_vba_importability_and_entrypoints(self):
         paths=list((ROOT/'vba/network').glob('*.bas'))
-        self.assertEqual(len(paths),5)
+        self.assertEqual(len(paths),10)
         procedures=[]
         for path in paths:
             data=path.read_text(encoding='ascii')

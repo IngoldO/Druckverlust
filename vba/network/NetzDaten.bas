@@ -10,6 +10,7 @@ Public Type NetzKnoten
     DruckBarA As Double
     FlussVorgegeben As Boolean
     ExternQ As Double ' m3/h: positive injection, negative withdrawal
+    PositionManuell As Boolean
     X As Double
     Y As Double
 End Type
@@ -32,6 +33,8 @@ Public Type NetzLeitung
 End Type
 
 Public Type NetzResultat
+    PumpenQ As Double
+    PumpenDruck As Double
     Erfolg As Boolean
     Status As String
     Iterationen As Long
