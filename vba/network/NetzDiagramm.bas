@@ -2,39 +2,16 @@ Attribute VB_Name = "NetzDiagramm"
 Option Explicit
 
 Public Sub NetzSchemaZeichnen(ByVal ws As Worksheet, ByRef k() As NetzKnoten, ByRef e() As NetzLeitung, ByRef r As NetzResultat, Optional ByVal oben As Double = 75, Optional ByVal maxBreite As Double = 0, Optional ByVal maxHoehe As Double = 0)
-    Dim layer() As Long, counts() As Long, xpos() As Double, ypos() As Double
-    Dim i As Long, j As Long, a As Long, b As Long, root As Long, pass As Long, n As Long
-    Dim changed As Boolean, schemaBreite As Double, schemaHoehe As Double, layoutFaktor As Double, sx As Double
+    Dim layer() As Long, xpos() As Double, ypos() As Double
+    Dim i As Long, j As Long, a As Long, b As Long, n As Long
+    Dim schemaBreite As Double, schemaHoehe As Double, layoutFaktor As Double, sx As Double
     Dim rechteGrenze As Double, untereGrenze As Double, fontsize As Double
     Dim sy As Double, duplicate As Long, node As Shape, verbindung As Shape, beschriftung As Shape, pump As Shape
     If Not r.Erfolg Then NetzFehler "Kein gueltiger Betriebspunkt fuer das Schema."
     NetzShapesLoeschen ws
-    n = UBound(k): ReDim layer(1 To n): ReDim counts(0 To n): ReDim xpos(1 To n): ReDim ypos(1 To n)
-    root = 1
+    n = UBound(k): ReDim layer(1 To n): ReDim xpos(1 To n): ReDim ypos(1 To n)
+    NetzLayoutBerechnen k, e, layer, xpos, ypos
     For i = 1 To n
-        layer(i) = -1
-        If k(i).DruckFest Then root = i
-    Next i
-    layer(root) = 0
-    For pass = 1 To n
-        changed = False
-        For i = 1 To UBound(e)
-            If e(i).Aktiv Then
-                a = e(i).Von: b = e(i).Nach
-                If layer(a) >= 0 And layer(b) < 0 Then layer(b) = layer(a) + 1: changed = True
-                If layer(b) >= 0 And layer(a) < 0 Then layer(a) = layer(b) + 1: changed = True
-            End If
-        Next i
-        If Not changed Then Exit For
-    Next pass
-    For i = 1 To n
-        If layer(i) < 0 Then NetzFehler "Schema: nicht verbundenes Netz."
-        xpos(i) = layer(i) * 200: ypos(i) = counts(layer(i)) * 115
-        counts(layer(i)) = counts(layer(i)) + 1
-        If k(i).PositionManuell Then
-            If k(i).X < 0 Or k(i).Y < 0 Then NetzFehler "Manuelle X/Y-Positionen muessen >=0 sein."
-            xpos(i) = k(i).X: ypos(i) = k(i).Y
-        End If
         If xpos(i) + 140 > schemaBreite Then schemaBreite = xpos(i) + 140
         If ypos(i) + 65 > schemaHoehe Then schemaHoehe = ypos(i) + 65
     Next i
@@ -45,8 +22,8 @@ Public Sub NetzSchemaZeichnen(ByVal ws As Worksheet, ByRef k() As NetzKnoten, By
             For j = 1 To i - 1
                 If (e(j).Von = a And e(j).Nach = b) Or (e(j).Von = b And e(j).Nach = a) Then duplicate = duplicate + 1
             Next j
-            sx = (xpos(a) + xpos(b) + 140) / 2 + 150
-            sy = (ypos(a) + ypos(b)) / 2 + 17 * duplicate + 60
+            sx = (xpos(a) + xpos(b) + 140) / 2 + 75
+            sy = (ypos(a) + ypos(b)) / 2 + 24 * duplicate + 65
             If sx > schemaBreite Then schemaBreite = sx
             If sy > schemaHoehe Then schemaHoehe = sy
         End If
@@ -70,11 +47,22 @@ Public Sub NetzSchemaZeichnen(ByVal ws As Worksheet, ByRef k() As NetzKnoten, By
     For i = 1 To UBound(e)
         If e(i).Aktiv Then
             a = e(i).Von: b = e(i).Nach
-            Set verbindung = ws.Shapes.AddConnector(msoConnectorElbow, 0, 0, 10, 10)
+            Set verbindung = ws.Shapes.AddConnector(msoConnectorStraight, 0, 0, 10, 10)
             verbindung.Name = "net_edge_" & i
-            verbindung.ConnectorFormat.BeginConnect ws.Shapes("net_node_" & a), 4
-            verbindung.ConnectorFormat.EndConnect ws.Shapes("net_node_" & b), 2
-            verbindung.RerouteConnections
+            ' Keep explicit endpoints; do not let Excel reroute branch lines over other nodes.
+            If xpos(b) > xpos(a) Then
+                verbindung.ConnectorFormat.BeginConnect ws.Shapes("net_node_" & a), 4
+                verbindung.ConnectorFormat.EndConnect ws.Shapes("net_node_" & b), 2
+            ElseIf xpos(b) < xpos(a) Then
+                verbindung.ConnectorFormat.BeginConnect ws.Shapes("net_node_" & a), 2
+                verbindung.ConnectorFormat.EndConnect ws.Shapes("net_node_" & b), 4
+            ElseIf ypos(b) >= ypos(a) Then
+                verbindung.ConnectorFormat.BeginConnect ws.Shapes("net_node_" & a), 3
+                verbindung.ConnectorFormat.EndConnect ws.Shapes("net_node_" & b), 1
+            Else
+                verbindung.ConnectorFormat.BeginConnect ws.Shapes("net_node_" & a), 1
+                verbindung.ConnectorFormat.EndConnect ws.Shapes("net_node_" & b), 3
+            End If
             If r.Q(i) > 0.000001 Then verbindung.Line.EndArrowheadStyle = msoArrowheadTriangle
             If r.Q(i) < -0.000001 Then verbindung.Line.BeginArrowheadStyle = msoArrowheadTriangle
             verbindung.Line.ForeColor.RGB = RGB(55, 95, 115)
@@ -83,10 +71,10 @@ Public Sub NetzSchemaZeichnen(ByVal ws As Worksheet, ByRef k() As NetzKnoten, By
             For j = 1 To i - 1
                 If (e(j).Von = a And e(j).Nach = b) Or (e(j).Von = b And e(j).Nach = a) Then duplicate = duplicate + 1
             Next j
-            sx = 10 + (xpos(a) + xpos(b) + 140) * layoutFaktor / 2
-            sy = oben + (ypos(a) + ypos(b)) * layoutFaktor / 2 + 17 * duplicate * layoutFaktor
+            sx = 10 + ((xpos(a) + xpos(b) + 140) / 2 - 75) * layoutFaktor
+            sy = oben + ((ypos(a) + ypos(b)) / 2 + 0.5 + 24 * duplicate) * layoutFaktor
             Set beschriftung = ws.Shapes.AddTextbox(msoTextOrientationHorizontal, sx, sy, 150 * layoutFaktor, 30 * layoutFaktor)
-            beschriftung.Name = "net_label_" & i: beschriftung.TextFrame.Characters.Text = e(i).ID & " | Q=" & Format(r.Q(i), "0.0000") & " m3/h"
+            beschriftung.Name = "net_label_" & i: beschriftung.TextFrame.Characters.Text = e(i).ID & ": " & k(a).ID & " -> " & k(b).ID & vbLf & "Q=" & Format(r.Q(i), "0.0000") & " m3/h"
             fontsize = 8 * layoutFaktor: If fontsize < 1 Then fontsize = 1
             beschriftung.TextFrame.Characters.Font.Size = fontsize: beschriftung.TextFrame.Characters.Font.Color = vbBlack: beschriftung.Line.Visible = msoFalse
             beschriftung.Fill.ForeColor.RGB = vbWhite
@@ -107,6 +95,60 @@ Public Sub NetzSchemaZeichnen(ByVal ws As Worksheet, ByRef k() As NetzKnoten, By
         Next node
         ws.PageSetup.PrintArea = ws.Range(ws.Cells(1, 1), ws.Cells(3 + Int(untereGrenze / ws.Rows(1).Height), 2 + Int(rechteGrenze / ws.Columns(1).Width))).Address
     End If
+End Sub
+
+Public Sub NetzLayoutBerechnen(ByRef k() As NetzKnoten, ByRef e() As NetzLeitung, ByRef layer() As Long, ByRef xpos() As Double, ByRef ypos() As Double)
+    Dim n As Long, i As Long, j As Long, root As Long, head As Long, tail As Long
+    Dim queue() As Long, counts() As Long, slots() As Long, other As Long, maxCount As Long
+    n = UBound(k): root = 0
+    ReDim layer(1 To n): ReDim xpos(1 To n): ReDim ypos(1 To n)
+    ReDim queue(1 To n): ReDim counts(0 To n): ReDim slots(0 To n)
+    ' Prefer the declared source, never the last pressure reservoir in the table.
+    For i = 1 To n
+        layer(i) = -1
+        If root = 0 And k(i).Typ = "Einspeisung" Then root = i
+    Next i
+    If root = 0 Then
+        For i = 1 To UBound(e)
+            If e(i).Aktiv And e(i).Pumpe Then root = e(i).Von: Exit For
+        Next i
+    End If
+    If root = 0 Then
+        For i = 1 To n
+            If k(i).DruckFest Then root = i: Exit For
+        Next i
+    End If
+    If root = 0 Then root = 1
+    head = 1: tail = 1: queue(1) = root: layer(root) = 0
+    Do While head <= tail
+        i = queue(head): head = head + 1
+        For j = 1 To UBound(e)
+            If e(j).Aktiv Then
+                other = 0
+                If e(j).Von = i Then other = e(j).Nach
+                If e(j).Nach = i Then other = e(j).Von
+                If other > 0 Then
+                    If layer(other) < 0 Then
+                        layer(other) = layer(i) + 1: tail = tail + 1: queue(tail) = other
+                    End If
+                End If
+            End If
+        Next j
+    Loop
+    For i = 1 To n
+        If layer(i) < 0 Then NetzFehler "Schema: nicht verbundenes Netz."
+        counts(layer(i)) = counts(layer(i)) + 1
+        If counts(layer(i)) > maxCount Then maxCount = counts(layer(i))
+    Next i
+    For i = 1 To n
+        xpos(i) = layer(i) * 300
+        ypos(i) = (slots(layer(i)) + (maxCount - counts(layer(i))) / 2) * 115
+        slots(layer(i)) = slots(layer(i)) + 1
+        If k(i).PositionManuell Then
+            If k(i).X < 0 Or k(i).Y < 0 Then NetzFehler "Manuelle X/Y-Positionen muessen >=0 sein."
+            xpos(i) = k(i).X: ypos(i) = k(i).Y
+        End If
+    Next i
 End Sub
 
 Public Sub NetzwerkPositionenSpeichern()

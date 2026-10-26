@@ -76,7 +76,7 @@ class EngineeringFeatures(unittest.TestCase):
             self.assertEqual(page.attrib['paperSize'],'9');self.assertEqual(page.attrib['orientation'],'landscape')
     def test_drawing_owns_only_prefixed_shapes_and_supports_reverse(self):
         src=(ROOT/'vba/network/NetzDiagramm.bas').read_text()
-        self.assertIn('msoConnectorElbow',src)
+        self.assertIn('msoConnectorStraight',src)
         self.assertIn('BeginArrowheadStyle',src);self.assertIn('EndArrowheadStyle',src)
         self.assertIn('PositionManuell',src);self.assertIn('NetzwerkPositionenSpeichern',src)
         cleanup=(ROOT/'vba/network/NetzBedienung.bas').read_text()

@@ -13,9 +13,9 @@ python -m unittest discover -s tests -v
 
 Alle Befehle im Repository-Verzeichnis ausführen. Installation ist nur für Entwicklungsprüfungen/Generierung nötig; Excel/VBA benötigt weder Python noch NumPy/SciPy.
 
-Ergebnis: **70 Python-Tests bestanden**, davon alle 38 bisherigen Tests unverändert und 32 zusätzliche Tests. Die Regression prüft zusätzlich unveränderte SHA-256-Werte sämtlicher inventarisierter V1-Module, Generatoren, Tests und Arbeitsmappen. In der V2-Vorlage stimmen die Zellwerte/Formeln/Formatindizes der zehn alten Blätter sowie die bisherigen Tabellen- und Diagramm-XMLs mit V1 überein.
+Ergebnis: **74 Python-Tests bestanden**, davon alle 38 bisherigen Tests unverändert und 36 zusätzliche Tests. Die Regression prüft zusätzlich unveränderte SHA-256-Werte sämtlicher inventarisierter V1-Module, Generatoren, Tests und Arbeitsmappen. In der V2-Vorlage stimmen die Zellwerte/Formeln/Formatindizes der zehn alten Blätter sowie die bisherigen Tabellen- und Diagramm-XMLs mit V1 überein.
 
-**Kein VBA wurde hier kompiliert oder ausgeführt.** Die bestehenden 20+37 VBA-Fälle sind bytegleich erhalten. `NetzwerkValidieren` ergänzt **25 Netzwerk-Kernfälle und 8 Funktionstests**, insgesamt damit 90 vorbereitete tatsächliche VBA-Testfälle zur späteren Windows-Abnahme. Python-Algorithmusprüfungen ersetzen diese Ausführung nicht.
+**Kein VBA wurde hier kompiliert oder ausgeführt.** Die bestehenden 20+37 VBA-Fälle sind bytegleich erhalten. `NetzwerkValidieren` ergänzt **25 Netzwerk-Kernfälle und 11 Funktionstests**, insgesamt damit 93 vorbereitete tatsächliche VBA-Testfälle zur späteren Windows-Abnahme. Python-Algorithmusprüfungen ersetzen diese Ausführung nicht.
 
 ## Unabhängige Referenz
 
@@ -71,7 +71,7 @@ Genaue Werte pro Fall: `Validierungsergebnisse.json`, reproduzierbar mit `tools/
 
 - V2 als neue XLSM speichern, acht alte und zehn Netzwerkmodule importieren und vollständig kompilieren.
 - Alle bisherigen 57 VBA-Fälle ausführen; bestehende Einzelrohr-, Pumpen-, Berichts- und Standalone-Workflows gemäß V1-Anleitung prüfen.
-- `NetzwerkValidieren` ausführen: 25 Kern- und 8 Funktionstests erwartet, einschließlich 20/30-Netz.
+- `NetzwerkValidieren` ausführen: 25 Kern- und 11 Funktionstests erwartet, einschließlich 20/30-Netz.
 - Tabellen erweitern, Zeilen entfernen, Dropdowns und unbekannte/duplizierte IDs prüfen; befüllt berechnete Drücke niemals in Eingaben zurückschreiben.
 - Aktive/inaktive Leitungen, ζ=0, individuelle Kv-/Blendenwerte, Strömungsumkehr und gesperrte Rückschlagventile mit Ergebnisresiduen vergleichen.
 - Solverfehler provozieren: alte Netzwerkergebnisse müssen verschwinden und UNGUELTIG sichtbar sein. Modus-A-Eingaben bleiben erhalten.
@@ -84,11 +84,11 @@ Schemagrafik, Netzwerk-Systemkennlinie und Netzwerkbericht sind inzwischen imple
 
 Zehn zusätzliche Cloud-Tests prüfen analytischen Portdruck einer Reihenschaltung einschließlich Q=0, unveränderte Eingabedaten, Q-abhängige Verteilung in unterschiedlichen Parallelzweigen gegen das unabhängige Verfahren, erforderliche Pumpen-dp bei Q=0/10/50, eine geschlossene Umlaufschaltung mit Pumpe, Übereinstimmung von Systemkurve und gekoppeltem Herstellerbetriebspunkt, unzureichende Randbedingungen und eine nicht eindeutige Nullstrom-Pumpenkennlinie mit Rückschlagventil. Zusätzlich werden die neuen Arbeitsblätter, Setupfelder, A4-Querformat, Shape-Präfixe, Vorzeichenpfeile und frische Berichtsdaten strukturell geprüft.
 
-Die tatsächlichen VBA-Funktionsprüfungen werden mit `tools/build_network_feature_tests.py` erzeugt. `NetzwerkFunktionenValidieren` enthält acht Fälle mit analytischen Referenzen und Fehlerprüfungen. `NetzwerkValidieren` startet diese zusätzlich zu den 25 bisherigen Netzwerkfällen. Alle alten V1-Module/-Prüfungen bleiben bytegleich. Die Python-Tests prüfen weiterhin kein Excel-Rendering und führen kein VBA aus.
+Die tatsächlichen VBA-Funktionsprüfungen werden mit `tools/build_network_feature_tests.py` erzeugt. `NetzwerkFunktionenValidieren` enthält elf Fälle mit analytischen Referenzen und Fehlerprüfungen. `NetzwerkValidieren` startet diese zusätzlich zu den 25 bisherigen Netzwerkfällen. Alle alten V1-Module/-Prüfungen bleiben bytegleich. Die Python-Tests prüfen weiterhin kein Excel-Rendering und führen kein VBA aus.
 
 Erweiterte Excel-Abnahme:
 
-1. Neue V2-Vorlage als XLSM speichern; acht V1- plus zehn Netzwerkmodule importieren, kompilieren, `Einrichtung` und `NetzwerkEinrichtung` ausführen. Alle 90 vorbereiteten VBA-Fälle ausführen (20+37+25+8).
+1. Neue V2-Vorlage als XLSM speichern; acht V1- plus zehn Netzwerkmodule importieren, kompilieren, `Einrichtung` und `NetzwerkEinrichtung` ausführen. Alle 93 vorbereiteten VBA-Fälle ausführen (20+37+25+11).
 2. Modus A einschließlich Systembericht und beide Standalone-Blätter wie bisher prüfen.
 3. Netzwerk rechnen: Knotendrücke, Teilströme, Richtungen, Pumpensymbol und farbige Verteiler/Sammler im Schema prüfen; bei negativem Q muss der Pfeil umkehren. Fremdes Shape anlegen, neu berechnen: es darf nicht gelöscht werden.
 4. Knoten verschieben, Positionen explizit speichern, neu rechnen: Positionen müssen erhalten bleiben. X/Y gemeinsam leeren: automatische Anordnung. Knoten umsortieren: Speichern eines alten Schemas muss abgelehnt werden.
@@ -106,3 +106,10 @@ Erweiterte Excel-Abnahme:
 Die Variablennamen `scale` und `step` im Solver kollidierten mit VBA-Schlüsselwörtern. Lokale Namen wurden in `NetzSolver.bas`, `NetzDiagramm.bas` und `NetzBericht.bas` eindeutig umbenannt; dabei wurden auch `line` und `width` als lokale Namen vermieden. Office-Eigenschaften wie `.Line` und `.Width` bleiben erhalten. Drei gezielte Python-Regressionstests erkennen diese Deklarationen und prüfen, dass Office-Member erhalten bleiben. Das ist eine gezielte Textprüfung und kein VBA-Compiler.
 
 Bestehende V2-Anwender: Arbeitsmappe sichern; im VBA-Editor die drei genannten Module entfernen (bei eigener Bearbeitung zuvor exportieren) und die aktuellen BAS-Dateien vom Entwicklungsbranch importieren. Anschließend Debuggen → VBAProject kompilieren. Eine XLSX muss als XLSM gespeichert werden, damit importierter VBA-Code beim Schließen erhalten bleibt. Andere Eingaben und Arbeitsblätter müssen für diesen Fix nicht ersetzt werden.
+
+
+## Verzweigungsdarstellung A–M–B/S
+
+Vier weitere Cloud-Regressionen prüfen Quellenpriorität, Ebenen und vertikale Zentrierung des Y-Netzes, Quellenwahl bei anderer Tabellenreihenfolge mit manuellen Positionen, explizite geradlinige Verbinder/Beschriftungen und die hydraulische Lösung gegen die analytische laminare Referenz. Die drei Layoutprüfungen sind zusätzlich im tatsächlichen VBA-Makro enthalten, das nun elf Funktionstests vorbereitet. Die Geometrieprüfung in Python ist eine Transkription des Layoutverfahrens; sie ersetzt keine Sichtprüfung der Excel-Shapes.
+
+Analytischer Fall: A=3 bar(a), B=S=2 bar(a), M frei; L1/L2: Di=50 mm, L3: Di=25 mm; jeweils L=10 m, μ=100 mPa·s, keine Armaturen. Mit R=128μL/(πD⁴·3600·100000) gilt p_M=2+16/33 bar(a) sowie Q_L1=17/(33R), Q_L2=16/(33R), Q_L3=1/(33R). Damit werden die vom Anwender gezeigten Werte einschließlich Knotenerhaltung reproduziert. Nur die Visualisierung wurde geändert, nicht der hydraulische Solver.

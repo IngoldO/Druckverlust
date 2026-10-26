@@ -11,7 +11,7 @@
 | 5 Netzwerkschema | Shapes mit Richtung, Druck, Q, IDs und Pumpensymbol; automatische Anordnung und explizit speicherbare X/Y-Positionen implementiert |
 | 6 Pumpe/Systemkurve | Pumpe im gekoppelten Netz; Q-Sweep mit neuer Verteilung je Punkt und erforderlichem Einspeisedruck/Pumpen-dp implementiert |
 | 7 Netzwerkbericht | Eigenständiger A4-Netzwerkbericht mit Schema, Eingabestand, Resultaten, Formeln, Annahmen und optionalem Kennliniendiagramm implementiert |
-| 8 Abnahme | 70 Cloud-Tests bestanden; tatsächliche VBA-Ausführung, Migration einer externen V4-XLSM und Windows-Excel-/Druckabnahme offen |
+| 8 Abnahme | 74 Cloud-Tests bestanden; tatsächliche VBA-Ausführung, Migration einer externen V4-XLSM und Windows-Excel-/Druckabnahme offen |
 
 Die bisherige Einzelrohr-Systemkurve bleibt vollständig vorhanden und ist von der neuen Netzwerk-Kennlinie unabhängig.
 
@@ -20,7 +20,7 @@ Die bisherige Einzelrohr-Systemkurve bleibt vollständig vorhanden und ist von d
 1. Alte Arbeitsmappe unverändert aufbewahren. `excel/Druckverlust_Netzwerk_V2.xlsx` als **neue** XLSM speichern.
 2. Alle acht bisherigen BAS-Dateien aus `vba/` und zusätzlich alle **zehn** BAS-Dateien aus `vba/network/` importieren. Keine neuen Module ersetzen alte Namen.
 3. VBA-Projekt kompilieren. Bisheriges `Einrichtung` für Modus A ausführen. Danach `NetzwerkEinrichtung` ausführen: fünf Schaltflächen auf `Netzwerk_Setup` öffnen die Netzwerkfunktionen. Alternativ Alt+F8: `NetzwerkBerechnen`, `NetzwerkKennlinieBerechnen`, `NetzwerkBerichtErstellen`, `NetzwerkPositionenSpeichern`, `NetzwerkValidieren`.
-4. `ValidierungStarten` muss weiterhin 37 Erweiterungs- und 20 Kernfälle melden. `NetzwerkValidieren` startet 25 Netzwerk-Kernfälle und 8 zusätzliche Funktionstests. Alle diese Makros sind vorbereitet, nicht hier in Excel ausgeführt.
+4. `ValidierungStarten` muss weiterhin 37 Erweiterungs- und 20 Kernfälle melden. `NetzwerkValidieren` startet 25 Netzwerk-Kernfälle und 11 zusätzliche Funktionstests. Alle diese Makros sind vorbereitet, nicht hier in Excel ausgeführt.
 5. Fiktive Werte in `Netzwerk_*` bearbeiten und `NetzwerkBerechnen` starten. Der Ergebnisstatus muss KONVERGIERT lauten; separate Residuen prüfen.
 6. Alte Eingabewerte bei Bedarf bewusst in die entsprechenden bisherigen Blätter der neuen Datei übertragen. Keine automatische Migration, kein Überschreiben von Anwenderdateien. Für eine externe V4-XLSM muss zuerst deren konkreter Blatt-/Modulbestand geprüft werden.
 
@@ -134,3 +134,20 @@ Auf `Netzwerk_Bericht` Projekt, Dokumentnummer, Bearbeiter und Revision ausfüll
 Der mehrseitige A4-Querformatbericht enthält Schema, Kennzahlen, Formeln, Annahmen, Freigabefeld, vollständige Knoten-/Leitungsdaten und Randbedingungen, getrennte Verlustanteile, Residuen, Armaturenparameter pro Leitung, wirksame summierte Beiwerte und Pumpenstützpunkte. Zusätzlich wird eine Kennlinie aus demselben Netzstand berechnet und mit Pumpe/Betriebspunkt dargestellt. Ist die gewählte Kennlinie nicht eindeutig oder ungültig, bleibt der gültige Betriebspunktbericht erhalten und nennt die fehlende Kennlinie mit Grund und Alternative; es wird keine scheinbar gültige Kurve gedruckt.
 
 Diagrammdaten liegen im Berichtsblatt selbst. Nach Eingabeänderungen Bericht erneut erstellen. Ein fehlgeschlagener Netzwerkbetriebspunkt entfernt generierte Zahlen/Shapes und markiert den Bericht UNGUELTIG. Das Schema auf dem Deckbereich ist aus Platzgründen verkleinert; für große Netze das separate Diagramm vergrößert beilegen. Vor Engineering-Freigabe die tatsächliche Druckvorschau und Makroausführung in Microsoft Excel prüfen.
+
+
+## Beispiel: Eine Einspeisung mit zwei Verbrauchern
+
+Die Eingaben für eine Verzweigung sind:
+
+| Leitung | Start | Ende |
+|---|---|---|
+| L1 | A | M |
+| L2 | M | B |
+| L3 | M | S |
+
+A: Einspeisung, z.B. 3 bar(a). M: Verteiler, Druck und externer Fluss **leer**. B und S: Behälter mit z.B. jeweils 2 bar(a), externe Flüsse leer. Alle drei Leitungen aktiv, Pumpe=0. Dies bedeutet A → M und danach zwei getrennte Abgänge M → B sowie M → S. Am Verteiler muss Q_L1 = Q_L2 + Q_L3 gelten. Unterschiedliche Rohrinnendurchmesser erzeugen unterschiedliche Teilströme; DN ersetzt die Eingabe von Di nicht.
+
+Die automatische Darstellung beginnt jetzt an der ersten als Einspeisung bezeichneten Quelle. Ohne solche Quelle verwendet sie den Pumpenstart oder den ersten Druckknoten. Echte Breitensuche bestimmt die Layout-Ebenen; ein Verteiler und seine Verbraucher werden mittig angeordnet. Gerade, an den jeweiligen Knoten befestigte Linien vermeiden den Eindruck zusätzlicher Abzweige durch überlagerte Winkelverbinder. Beschriftungen nennen explizit Leitungs-ID und Start-/Endknoten; Pfeile zeigen weiterhin die tatsächliche Richtung. Kreuzungen ohne Knotensymbol sind keine zusätzlichen hydraulischen Knoten.
+
+Für dieses Darstellungsupdate reicht es, `NetzDiagramm.bas` zu ersetzen. Sind X/Y bereits gespeichert, beide Spalten für das automatische Layout leeren und `NetzwerkBerechnen` erneut ausführen. Das Eingabenetz und die Hydraulik werden durch die Layoutkorrektur nicht verändert. Komplexe Netze können weiterhin manuell angeordnet werden.

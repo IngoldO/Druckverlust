@@ -9,6 +9,7 @@ Public Sub NetzwerkFunktionenValidieren()
     On Error GoTo Fehler
     Dim k() As NetzKnoten, e() As NetzLeitung, pq(1 To 1) As Double, ph(1 To 1) As Double
     Dim r As NetzResultat, dp As Double, count As Long, code As Long, i As Long
+    Dim layers() As Long, xpos() As Double, ypos() As Double
     ReDim k(1 To 3): ReDim e(1 To 2)
     k(1).ID = "Quelle": k(1).DruckFest = True: k(1).DruckBarA = 3
     k(2).ID = "Mitte": k(3).ID = "Ziel": k(3).DruckFest = True: k(3).DruckBarA = 2
@@ -49,6 +50,26 @@ Public Sub NetzwerkFunktionenValidieren()
         If code = 0 Then NetzFehler "Ungueltige Kennlinienvorgabe akzeptiert."
         count = count + 1
     Next i
+    ReDim k(1 To 4): ReDim e(1 To 3)
+    k(1).ID = "A": k(1).Typ = "Einspeisung": k(1).DruckFest = True
+    k(2).ID = "M": k(2).Typ = "Verteiler"
+    k(3).ID = "B": k(3).DruckFest = True
+    k(4).ID = "S": k(4).DruckFest = True
+    e(1).Von = 1: e(1).Nach = 2: e(1).Aktiv = True
+    e(2).Von = 2: e(2).Nach = 3: e(2).Aktiv = True
+    e(3).Von = 2: e(3).Nach = 4: e(3).Aktiv = True
+    NetzLayoutBerechnen k, e, layers, xpos, ypos
+    If layers(1) <> 0 Or layers(2) <> 1 Or layers(3) <> 2 Or layers(4) <> 2 Then NetzFehler "Verzweigungslayout startet nicht bei A."
+    Nah ypos(2), (ypos(3) + ypos(4)) / 2
+    count = count + 1
+    k(1).Typ = "": k(4).Typ = "Einspeisung"
+    NetzLayoutBerechnen k, e, layers, xpos, ypos
+    If layers(4) <> 0 Then NetzFehler "Deklarierte Einspeisung wurde ignoriert."
+    count = count + 1
+    k(1).PositionManuell = True: k(1).X = 17: k(1).Y = 23
+    NetzLayoutBerechnen k, e, layers, xpos, ypos
+    Nah xpos(1), 17: Nah ypos(1), 23
+    count = count + 1
     MsgBox count & " Netzwerk-Funktionstests bestanden.", vbInformation
     Exit Sub
 Fehler:
